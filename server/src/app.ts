@@ -4,10 +4,9 @@ import applications from './routes/applications'
 import notes from './routes/notes'
 import documents from './routes/documents'
 
+
 const app = new Hono()
-
-app.use('/api/*', cors())  // ← must be before routes below
-
+app.use('/api/*', cors({ origin: 'https://offerly.vercel.app' }))
 app.get('/api/health', (c) => c.json({ status: 'ok' }))
 app.route('/api/applications', applications)
 app.route('/api/applications', notes)

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getApplications } from '../api/application'
+import { getApplications } from '../api/applications.ts'
 import type { Application } from '../types/application'
 import ApplicationCard from '../components/ApplicationCard'
 
