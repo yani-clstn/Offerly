@@ -1,16 +1,7 @@
-import { Hono } from 'hono'
-import { cors } from 'hono/cors'
-import applications from './routes/applications'
-import notes from './routes/notes'
-import documents from './routes/documents'
+import { serve } from '@hono/node-server'
+import app from './app'
 
-const app = new Hono()
-
-app.use('/api/*', cors())  // ← must be before routes below
-
-app.get('/api/health', (c) => c.json({ status: 'ok' }))
-app.route('/api/applications', applications)
-app.route('/api/applications', notes)
-app.route('/api/applications', documents)
-
-export default app
+const port = 3000
+serve({ fetch: app.fetch, port }, () => {
+  console.log(`Server running on http://localhost:${port}`)
+})
