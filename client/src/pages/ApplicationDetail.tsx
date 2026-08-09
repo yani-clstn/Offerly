@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { getApplication } from '../api/applications.ts'
-import StatusBadge from '../components/StatusBadge'
 import StatusUpdater from '../components/StatusUpdater'
 import NoteForm from '../components/NoteForm'
 
