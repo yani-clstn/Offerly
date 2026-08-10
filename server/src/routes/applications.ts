@@ -1,15 +1,18 @@
 import { Hono } from 'hono'
 import { db } from '../db'
 import { applications, statusHistory } from '../db/schema'
-import { eq, desc } from 'drizzle-orm'
+import { eq, desc, and } from 'drizzle-orm'
+import type { Variables } from '../types'
 
-const app = new Hono()
+const app = new Hono<{ Variables: Variables }>()
 
-// GET /api/applications — list all applications
+// GET /api/applications — list all applications for the logged-in user
 app.get('/', async (c) => {
+  const user = c.get('user')
   const allApplications = await db
     .select()
     .from(applications)
+    .where(eq(applications.userId, user.id))
     .orderBy(desc(applications.createdAt))
 
   return c.json(allApplications)
@@ -17,10 +20,11 @@ app.get('/', async (c) => {
 
 // GET /api/applications/:id — get one application with relations
 app.get('/:id', async (c) => {
+  const user = c.get('user')
   const id = Number(c.req.param('id'))
 
   const application = await db.query.applications.findFirst({
-    where: eq(applications.id, id),
+    where: and(eq(applications.id, id), eq(applications.userId, user.id)),
     with: {
       statusHistory: { orderBy: (sh, { desc }) => [desc(sh.changedAt)] },
       notes: { orderBy: (n, { desc }) => [desc(n.createdAt)] },
@@ -37,6 +41,7 @@ app.get('/:id', async (c) => {
 
 // POST /api/applications — create a new application
 app.post('/', async (c) => {
+  const user = c.get('user')
   const body = await c.req.json()
 
   const { company, role, jobPostingUrl, location, workType, salaryMin, salaryMax, source, appliedAt } = body
@@ -48,6 +53,7 @@ app.post('/', async (c) => {
   const [newApplication] = await db
     .insert(applications)
     .values({
+      userId: user.id,
       company,
       role,
       jobPostingUrl,
@@ -61,7 +67,6 @@ app.post('/', async (c) => {
     })
     .returning()
 
-  // Log the initial status in history too
   await db.insert(statusHistory).values({
     applicationId: newApplication.id,
     status: 'wishlist',
@@ -72,13 +77,14 @@ app.post('/', async (c) => {
 
 // PATCH /api/applications/:id — update application fields
 app.patch('/:id', async (c) => {
+  const user = c.get('user')
   const id = Number(c.req.param('id'))
   const body = await c.req.json()
 
   const [updated] = await db
     .update(applications)
     .set({ ...body, updatedAt: new Date() })
-    .where(eq(applications.id, id))
+    .where(and(eq(applications.id, id), eq(applications.userId, user.id)))
     .returning()
 
   if (!updated) {
@@ -90,6 +96,7 @@ app.patch('/:id', async (c) => {
 
 // PATCH /api/applications/:id/status — update status + log to history
 app.patch('/:id/status', async (c) => {
+  const user = c.get('user')
   const id = Number(c.req.param('id'))
   const { status, note } = await c.req.json()
 
@@ -100,7 +107,7 @@ app.patch('/:id/status', async (c) => {
   const [updated] = await db
     .update(applications)
     .set({ status, updatedAt: new Date() })
-    .where(eq(applications.id, id))
+    .where(and(eq(applications.id, id), eq(applications.userId, user.id)))
     .returning()
 
   if (!updated) {
@@ -118,11 +125,12 @@ app.patch('/:id/status', async (c) => {
 
 // DELETE /api/applications/:id
 app.delete('/:id', async (c) => {
+  const user = c.get('user')
   const id = Number(c.req.param('id'))
 
   const [deleted] = await db
     .delete(applications)
-    .where(eq(applications.id, id))
+    .where(and(eq(applications.id, id), eq(applications.userId, user.id)))
     .returning()
 
   if (!deleted) {

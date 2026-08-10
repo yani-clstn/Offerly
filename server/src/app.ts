@@ -1,11 +1,13 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { auth } from './lib/auth'
+import { requireAuth } from './middleware/auth'
+import type { Variables } from './types'
 import applications from './routes/applications'
 import notes from './routes/notes'
 import documents from './routes/documents'
 
-const app = new Hono()
+const app = new Hono<{ Variables: Variables }>()
 
 app.use('/api/*', cors({
   origin: ['http://localhost:5173', 'https://offerly.vercel.app'],

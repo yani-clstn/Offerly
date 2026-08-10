@@ -2,8 +2,9 @@ import { Hono } from 'hono'
 import { db } from '../db'
 import { documents } from '../db/schema'
 import { eq } from 'drizzle-orm'
+import type { Variables } from '../types'
 
-const app = new Hono()
+const app = new Hono<{ Variables: Variables }>()
 
 // POST /api/applications/:applicationId/documents
 app.post('/:applicationId/documents', async (c) => {
