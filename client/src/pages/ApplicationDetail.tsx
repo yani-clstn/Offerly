@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { getApplication } from '../api/applications.ts'
+import { getApplication } from '../api/applications'
 import StatusUpdater from '../components/StatusUpdater'
 import NoteForm from '../components/NoteForm'
+import DocumentForm from '../components/DocumentForm'
 
 interface StatusEntry {
   id: number
@@ -28,6 +29,11 @@ export default function ApplicationDetail() {
   const [application, setApplication] = useState<ApplicationWithRelations | null>(null)
   const [loading, setLoading] = useState(true)
 
+  function reload() {
+    if (!id) return
+    getApplication(Number(id)).then(setApplication)
+  }
+
   useEffect(() => {
     if (!id) return
     getApplication(Number(id))
@@ -51,13 +57,13 @@ export default function ApplicationDetail() {
           )}
         </div>
         <StatusUpdater
-            applicationId={application.id}
-            currentStatus={application.status as any}
-            onUpdated={() => getApplication(Number(id)).then(setApplication)}
-/>
+          applicationId={application.id}
+          currentStatus={application.status as any}
+          onUpdated={reload}
+        />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Status timeline */}
         <div className="bg-offwhite border border-[#DEDCD3] rounded-xl p-4">
           <p className="text-xs font-mono text-gray mb-3">Status log</p>
@@ -82,23 +88,49 @@ export default function ApplicationDetail() {
 
         {/* Notes */}
         <div className="bg-offwhite border border-[#DEDCD3] rounded-xl p-4">
-        <p className="text-xs font-mono text-gray mb-3">Notes</p>
-        {application.notes.length === 0 ? (
+          <p className="text-xs font-mono text-gray mb-3">Notes</p>
+          {application.notes.length === 0 ? (
             <p className="text-xs text-gray mb-3">No notes yet.</p>
-        ) : (
+          ) : (
             application.notes.map((note) => (
-            <div key={note.id} className="mb-3">
+              <div key={note.id} className="mb-3">
                 <p className="text-xs text-navy">{note.content}</p>
                 <p className="font-mono text-[10px] text-gray mt-0.5">
-                {new Date(note.createdAt).toLocaleDateString()}
+                  {new Date(note.createdAt).toLocaleDateString()}
                 </p>
-            </div>
+              </div>
             ))
-        )}
-        <NoteForm
-            applicationId={application.id}
-            onAdded={() => getApplication(Number(id)).then(setApplication)}
-        />
+          )}
+          <NoteForm applicationId={application.id} onAdded={reload} />
+        </div>
+
+        {/* Documents */}
+        <div className="bg-offwhite border border-[#DEDCD3] rounded-xl p-4">
+          <p className="text-xs font-mono text-gray mb-3">Documents</p>
+          {application.documents.length === 0 ? (
+            <p className="text-xs text-gray">No documents yet.</p>
+          ) : (
+            application.documents.map((doc) => {
+              const linkProps = {
+                key: doc.id,
+                href: doc.url,
+                target: '_blank',
+                rel: 'noopener noreferrer',
+                className: 'block mb-2 group',
+              }
+              return (
+                <a {...linkProps}>
+                  <p className="text-xs text-navy group-hover:text-terracotta transition-colors">
+                    {doc.label}
+                  </p>
+                  <p className="text-[10px] text-gray uppercase tracking-wide mt-0.5">
+                    {doc.type.replace('_', ' ')}
+                  </p>
+                </a>
+              )
+            })
+          )}
+          <DocumentForm applicationId={application.id} onAdded={reload} />
         </div>
       </div>
     </div>
