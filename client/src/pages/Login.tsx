@@ -31,40 +31,53 @@ export default function Login() {
   }
 
   return (
-    <div className="mt-16 max-w-sm mx-auto">
-      <h1 className="font-display text-xl text-navy mb-1">Welcome back</h1>
-      <p className="text-sm text-gray mb-6">Log in to your Offerly account.</p>
+    <div className="mt-20 max-w-sm mx-auto">
+      <div className="text-center mb-8">
+        <img src="/icons/Offerly.svg" alt="Offerly logo" className="w-10 h-10 mx-auto mb-3" />
+        <h1 className="font-display text-2xl text-navy mb-1">Welcome back</h1>
+        <p className="text-sm text-gray">Log in to your Offerly account.</p>
+      </div>
 
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <input
-          type="email"
-          className="w-full bg-offwhite border border-[#DEDCD3] rounded-lg px-3 py-2 text-sm text-navy placeholder:text-gray focus:outline-none focus:border-terracotta"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          className="w-full bg-offwhite border border-[#DEDCD3] rounded-lg px-3 py-2 text-sm text-navy placeholder:text-gray focus:outline-none focus:border-terracotta"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        {error && <p className="text-xs text-terracotta">{error}</p>}
-        <button
-          type="submit"
-          disabled={submitting}
-          className="w-full bg-navy text-offwhite text-sm font-medium px-4 py-2 rounded-lg hover:bg-terracotta transition-colors disabled:opacity-50"
-        >
-          {submitting ? 'Logging in...' : 'Log in'}
-        </button>
-      </form>
+      <div className="bg-offwhite border border-border rounded-2xl shadow-sm p-6">
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div>
+            <label className="text-xs text-gray mb-1 block">Email</label>
+            <input
+              type="email"
+              className="w-full bg-cream border border-border rounded-lg px-3 py-2.5 text-sm text-navy placeholder:text-gray focus:outline-none focus:ring-2 focus:ring-terracotta/40 focus:border-terracotta transition-all"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label className="text-xs text-gray mb-1 block">Password</label>
+            <input
+              type="password"
+              className="w-full bg-cream border border-border rounded-lg px-3 py-2.5 text-sm text-navy placeholder:text-gray focus:outline-none focus:ring-2 focus:ring-terracotta/40 focus:border-terracotta transition-all"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          {error && (
+            <p className="text-xs text-terracotta bg-terracotta/10 rounded-lg px-3 py-2">{error}</p>
+          )}
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full bg-navy text-offwhite text-sm font-medium px-4 py-2.5 rounded-lg hover:bg-terracotta transition-colors disabled:opacity-50 mt-1"
+          >
+            {submitting ? 'Logging in...' : 'Log in'}
+          </button>
+        </form>
+      </div>
 
-      <p className="text-xs text-gray mt-4">
+      <p className="text-xs text-gray mt-5 text-center">
         Don't have an account?{' '}
-        <Link to="/signup" className="text-terracotta hover:underline">Sign up</Link>
+        <Link to="/signup" className="text-terracotta hover:underline font-medium">Sign up</Link>
       </p>
     </div>
   )
