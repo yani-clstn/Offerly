@@ -1,14 +1,19 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { signUp } from '../lib/auth-client'
+import { signUp, useSession } from '../lib/auth-client'
 
 export default function Signup() {
   const navigate = useNavigate()
+  const { data: session } = useSession()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (session) navigate('/')
+  }, [session, navigate])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
