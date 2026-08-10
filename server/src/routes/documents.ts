@@ -6,7 +6,6 @@ import type { Variables } from '../types.js'
 
 const app = new Hono<{ Variables: Variables }>()
 
-// POST /api/applications/:applicationId/documents
 app.post('/:applicationId/documents', async (c) => {
   const applicationId = Number(c.req.param('applicationId'))
   const { type, label, url } = await c.req.json()
@@ -23,7 +22,6 @@ app.post('/:applicationId/documents', async (c) => {
   return c.json(newDoc, 201)
 })
 
-// DELETE /api/applications/documents/:id
 app.delete('/documents/:id', async (c) => {
   const id = Number(c.req.param('id'))
 

@@ -1,12 +1,11 @@
 import { Hono } from 'hono'
-import { db } from '../db'
-import { notes } from '../db/schema'
+import { db } from '../db/index.js'
+import { notes } from '../db/schema.js'
 import { eq } from 'drizzle-orm'
-import type { Variables } from '../types'
+import type { Variables } from '../types.js'
 
 const app = new Hono<{ Variables: Variables }>()
 
-// POST /api/applications/:applicationId/notes
 app.post('/:applicationId/notes', async (c) => {
   const applicationId = Number(c.req.param('applicationId'))
   const { content } = await c.req.json()
@@ -21,7 +20,6 @@ app.post('/:applicationId/notes', async (c) => {
   return c.json(newNote, 201)
 })
 
-// DELETE /api/applications/notes/:id
 app.delete('/notes/:id', async (c) => {
   const id = Number(c.req.param('id'))
 
