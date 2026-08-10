@@ -1,6 +1,6 @@
 import type { Status } from '../types/application'
 
-const STATUS_STYLES: Record<Status, string> = {
+export const STATUS_STYLES: Record<Status, string> = {
   wishlist: 'bg-[#EDECE7] text-gray',
   applied: 'bg-[#EDECE7] text-gray',
   phone_screen: 'bg-[#F7E4D3] text-[#8A4A1F]',
@@ -11,7 +11,7 @@ const STATUS_STYLES: Record<Status, string> = {
   withdrawn: 'bg-[#EDECE7] text-[#9A9890]',
 }
 
-const STATUS_LABELS: Record<Status, string> = {
+export const STATUS_LABELS: Record<Status, string> = {
   wishlist: 'Wishlist',
   applied: 'Applied',
   phone_screen: 'Phone screen',

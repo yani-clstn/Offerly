@@ -1,13 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { getApplications } from '../api/applications'
-import type { Application } from '../types/application'
+import type { Application, Status } from '../types/application'
 import ApplicationCard from '../components/ApplicationCard'
 import StatsBar from '../components/StatsBar'
+import FilterBar, { type SortOption } from '../components/FilterBar'
 
 export default function Dashboard() {
   const [applications, setApplications] = useState<Application[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [statusFilter, setStatusFilter] = useState<Status | 'all'>('all')
+  const [sortOption, setSortOption] = useState<SortOption>('newest')
 
   useEffect(() => {
     getApplications()
@@ -15,6 +18,22 @@ export default function Dashboard() {
       .catch(() => setError('Could not load applications. Is the server running?'))
       .finally(() => setLoading(false))
   }, [])
+
+  const visibleApplications = useMemo(() => {
+    let result = applications
+
+    if (statusFilter !== 'all') {
+      result = result.filter((a) => a.status === statusFilter)
+    }
+
+    result = [...result].sort((a, b) => {
+      if (sortOption === 'company') return a.company.localeCompare(b.company)
+      const diff = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      return sortOption === 'newest' ? -diff : diff
+    })
+
+    return result
+  }, [applications, statusFilter, sortOption])
 
   if (loading) return <p className="text-gray text-sm mt-8">Loading...</p>
   if (error) return <p className="text-terracotta text-sm mt-8">{error}</p>
@@ -31,11 +50,21 @@ export default function Dashboard() {
   return (
     <div className="mt-8 space-y-6">
       <StatsBar applications={applications} />
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {applications.map((app) => (
-          <ApplicationCard key={app.id} application={app} />
-        ))}
-      </div>
+      <FilterBar
+        statusFilter={statusFilter}
+        onStatusFilterChange={setStatusFilter}
+        sortOption={sortOption}
+        onSortChange={setSortOption}
+      />
+      {visibleApplications.length === 0 ? (
+        <p className="text-gray text-sm">No applications match this filter.</p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {visibleApplications.map((app) => (
+            <ApplicationCard key={app.id} application={app} />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
