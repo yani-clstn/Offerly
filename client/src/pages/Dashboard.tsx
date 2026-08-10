@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { getApplications } from '../api/applications.ts'
+import { getApplications } from '../api/applications'
 import type { Application } from '../types/application'
 import ApplicationCard from '../components/ApplicationCard'
+import StatsBar from '../components/StatsBar'
 
 export default function Dashboard() {
   const [applications, setApplications] = useState<Application[]>([])
@@ -28,10 +29,13 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3">
-      {applications.map((app) => (
-        <ApplicationCard key={app.id} application={app} />
-      ))}
+    <div className="mt-8 space-y-6">
+      <StatsBar applications={applications} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {applications.map((app) => (
+          <ApplicationCard key={app.id} application={app} />
+        ))}
+      </div>
     </div>
   )
 }
