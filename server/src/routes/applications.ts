@@ -1,8 +1,8 @@
 import { Hono } from 'hono'
-import { db } from '../db'
-import { applications, statusHistory } from '../db/schema'
+import { db } from '../db/index.js'
+import { applications, statusHistory } from '../db/schema.js'
 import { eq, desc, and } from 'drizzle-orm'
-import type { Variables } from '../types'
+import type { Variables } from '../types.js'
 
 const app = new Hono<{ Variables: Variables }>()
 

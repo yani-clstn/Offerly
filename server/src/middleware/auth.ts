@@ -1,6 +1,6 @@
 import type { Context, Next } from 'hono'
-import { auth } from '../lib/auth'
-import type { Variables } from '../types'
+import { auth } from '../lib/auth.js'
+import type { Variables } from '../types.js'
 
 export async function requireAuth(c: Context<{ Variables: Variables }>, next: Next) {
   const session = await auth.api.getSession({ headers: c.req.raw.headers })

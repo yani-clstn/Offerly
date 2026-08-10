@@ -1,11 +1,11 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { auth } from './lib/auth'
-import { requireAuth } from './middleware/auth'
-import type { Variables } from './types'
-import applications from './routes/applications'
-import notes from './routes/notes'
-import documents from './routes/documents'
+import { auth } from './lib/auth.js'
+import { requireAuth } from './middleware/auth.js'
+import type { Variables } from './types.js'
+import applications from './routes/applications.js'
+import notes from './routes/notes.js'
+import documents from './routes/documents.js'
 
 const app = new Hono<{ Variables: Variables }>()
 
