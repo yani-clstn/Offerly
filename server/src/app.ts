@@ -10,7 +10,7 @@ import documents from './routes/documents'
 const app = new Hono<{ Variables: Variables }>()
 
 app.use('/api/*', cors({
-  origin: ['http://localhost:5173', 'https://offerly.vercel.app'],
+  origin: ['http://localhost:5173', 'https://offerly-job-tracker.vercel.app'],
   credentials: true,
 }))
 

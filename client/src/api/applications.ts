@@ -1,6 +1,6 @@
 import type { Application } from '../types/application'
 
-const BASE_URL = 'http://localhost:3000/api/applications'
+const BASE_URL = `${import.meta.env.VITE_API_URL}/api/applications`
 
 export async function getApplications(): Promise<Application[]> {
   const res = await fetch(BASE_URL, { credentials: 'include' })
