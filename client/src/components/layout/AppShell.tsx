@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useSession, signOut } from '../../lib/auth-client'
+import ThemeToggle from '../ThemeToggle'
 
 export default function AppShell({ children }: { children: ReactNode }) {
   const { data: session } = useSession()
@@ -18,7 +19,8 @@ export default function AppShell({ children }: { children: ReactNode }) {
           <img src="/icons/Offerly.svg" alt="Offerly logo" className="w-8 h-8" />
           <span className="font-display font-medium text-lg text-navy">Offerly</span>
         </Link>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
+          <ThemeToggle />
           {session && (
             <>
               <Link

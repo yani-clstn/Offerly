@@ -61,7 +61,7 @@ export default function Dashboard() {
   return (
     <div className="mt-8 space-y-6">
       {firstName && (
-        <h1 className="font-display text-xl text-navy">
+        <h1 className="font-display text-xl text-navy mb-8 pb-1 leading-relaxed">
           Hello there, <span className="font-script italic text-terracotta text-2xl">{firstName}</span>
         </h1>
       )}

@@ -1,14 +1,35 @@
 @import "tailwindcss";
 
-@theme {
-  --color-cream: #F0EFEC;
-  --color-offwhite: #FAF9F6;
-  --color-navy: #152536;
-  --color-gray: #808080;
-  --color-terracotta: #DF864B;
+@custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
   --font-display: "Space Grotesk", sans-serif;
   --font-body: "Inter", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
   --font-script: "Playfair Display", serif;
+
+  --color-cream: var(--cream);
+  --color-offwhite: var(--offwhite);
+  --color-navy: var(--navy);
+  --color-gray: var(--gray);
+  --color-terracotta: var(--terracotta);
+  --color-border: var(--border);
+}
+
+:root {
+  --cream: #F0EFEC;
+  --offwhite: #FAF9F6;
+  --navy: #152536;
+  --gray: #808080;
+  --terracotta: #DF864B;
+  --border: #DEDCD3;
+}
+
+.dark {
+  --cream: #14181D;
+  --offwhite: #1C222B;
+  --navy: #F0EFEC;
+  --gray: #9CA3AF;
+  --terracotta: #E89A66;
+  --border: #2E3540;
 }
