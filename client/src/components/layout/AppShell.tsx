@@ -15,7 +15,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-cream font-body">
       <header className="flex items-center justify-between px-6 py-4 max-w-5xl mx-auto">
         <Link to="/" className="flex items-center gap-2">
-          <img src="/icons/Offerly.svg" alt="Offerly logo" className="w-5 h-5" />
+          <img src="/icons/Offerly.svg" alt="Offerly logo" className="w-8 h-8" />
           <span className="font-display font-medium text-lg text-navy">Offerly</span>
         </Link>
         <div className="flex items-center gap-3">

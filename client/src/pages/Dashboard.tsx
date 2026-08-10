@@ -46,8 +46,8 @@ export default function Dashboard() {
     return (
       <div className="mt-8">
         {firstName && (
-          <h1 className="font-display text-2xl text-navy mb-6">
-            Hello there, <span className="font-script italic text-terracotta text-3xl">{firstName}</span>
+          <h1 className="font-display text-xl text-navy mb-6">
+            Hello there, <span className="font-script italic text-terracotta text-2xl">{firstName}</span>
           </h1>
         )}
         <div className="text-center py-16 bg-offwhite border border-[#DEDCD3] rounded-xl">
@@ -61,8 +61,8 @@ export default function Dashboard() {
   return (
     <div className="mt-8 space-y-6">
       {firstName && (
-        <h1 className="font-display text-2xl text-navy">
-          Hello there, <span className="font-script italic text-terracotta text-3xl">{firstName}</span>
+        <h1 className="font-display text-xl text-navy">
+          Hello there, <span className="font-script italic text-terracotta text-2xl">{firstName}</span>
         </h1>
       )}
       <StatsBar applications={applications} />
