@@ -23,6 +23,7 @@
   --gray: #808080;
   --terracotta: #DF864B;
   --border: #DEDCD3;
+  color-scheme: light;
 }
 
 .dark {
@@ -32,4 +33,5 @@
   --gray: #9CA3AF;
   --terracotta: #E89A66;
   --border: #2E3540;
+  color-scheme: dark;
 }
