@@ -20,6 +20,7 @@ export interface Application {
   status: Status
   source: string | null
   appliedAt: string | null
+  followUpDate: string | null
   createdAt: string
   updatedAt: string
 }

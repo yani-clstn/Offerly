@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { getApplication } from '../api/applications'
+import { getApplication, updateFollowUpDate } from '../api/applications'
 import StatusUpdater from '../components/StatusUpdater'
 import NoteForm from '../components/NoteForm'
 import DocumentForm from '../components/DocumentForm'
@@ -19,6 +19,7 @@ interface ApplicationWithRelations {
   location: string | null
   status: string
   jobPostingUrl: string | null
+  followUpDate: string | null
   statusHistory: StatusEntry[]
   notes: { id: number; content: string; createdAt: string }[]
   documents: { id: number; label: string; url: string; type: string }[]
@@ -63,7 +64,7 @@ export default function ApplicationDetail() {
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Status timeline */}
         <div className="bg-offwhite border border-border rounded-xl p-4">
           <p className="text-xs font-mono text-gray mb-3">Status log</p>
@@ -84,6 +85,23 @@ export default function ApplicationDetail() {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Follow-up */}
+        <div className="bg-offwhite border border-border rounded-xl p-4">
+          <p className="text-xs font-mono text-gray mb-3">Follow-up date</p>
+          <input
+            type="date"
+            value={application.followUpDate ? application.followUpDate.slice(0, 10) : ''}
+            onChange={async (e) => {
+              await updateFollowUpDate(application.id, e.target.value || null)
+              reload()
+            }}
+            className="w-full bg-cream border border-border rounded-lg px-2 py-1.5 text-xs text-navy focus:outline-none focus:border-terracotta"
+          />
+          {application.followUpDate && new Date(application.followUpDate) <= new Date() && (
+            <p className="text-xs text-terracotta mt-2">Follow-up is overdue</p>
+          )}
         </div>
 
         {/* Notes */}

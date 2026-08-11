@@ -36,6 +36,17 @@ export async function updateApplicationStatus(id: number, status: string, note?:
   return res.json()
 }
 
+export async function updateFollowUpDate(id: number, followUpDate: string | null) {
+  const res = await fetch(`${BASE_URL}/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ followUpDate }),
+  })
+  if (!res.ok) throw new Error('Failed to update follow-up date')
+  return res.json()
+}
+
 export async function addNote(applicationId: number, content: string) {
   const res = await fetch(`${BASE_URL}/${applicationId}/notes`, {
     method: 'POST',

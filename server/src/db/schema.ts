@@ -33,6 +33,7 @@ export const applications = pgTable('applications', {
   status: statusEnum('status').notNull().default('wishlist'),
   source: varchar('source', { length: 100 }),
   appliedAt: timestamp('applied_at'),
+  followUpDate: timestamp('follow_up_date'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 })

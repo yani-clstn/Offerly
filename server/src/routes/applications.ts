@@ -81,9 +81,17 @@ app.patch('/:id', async (c) => {
   const id = Number(c.req.param('id'))
   const body = await c.req.json()
 
+  const updateData = {
+    ...body,
+    updatedAt: new Date(),
+    ...(body.followUpDate !== undefined && {
+      followUpDate: body.followUpDate ? new Date(body.followUpDate) : null,
+    }),
+  }
+
   const [updated] = await db
     .update(applications)
-    .set({ ...body, updatedAt: new Date() })
+    .set(updateData)
     .where(and(eq(applications.id, id), eq(applications.userId, user.id)))
     .returning()
 
