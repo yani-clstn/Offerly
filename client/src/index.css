@@ -12,6 +12,8 @@
   --color-offwhite: var(--offwhite);
   --color-navy: var(--navy);
   --color-gray: var(--gray);
+  /* Add this line: */
+  --color-gray-muted: var(--text-muted); 
   --color-terracotta: var(--terracotta);
   --color-border: var(--border);
 }
@@ -21,6 +23,7 @@
   --offwhite: #FAF9F6;
   --navy: #152536;
   --gray: #808080;
+  --text-muted: #6B7280; /* Darker gray for light mode */
   --terracotta: #DF864B;
   --border: #DEDCD3;
   color-scheme: light;
@@ -31,6 +34,7 @@
   --offwhite: #1C222B;
   --navy: #F0EFEC;
   --gray: #9CA3AF;
+  --text-muted: #CBD5E1; /* High-contrast light gray for dark mode */
   --terracotta: #E89A66;
   --border: #2E3540;
   color-scheme: dark;
