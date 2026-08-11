@@ -45,6 +45,8 @@ export default function ApplicationDetail() {
   if (loading) return <p className="text-gray text-sm mt-8">Loading...</p>
   if (!application) return <p className="text-terracotta text-sm mt-8">Application not found.</p>
 
+  const isOverdue = application.followUpDate && new Date(application.followUpDate) <= new Date()
+
   return (
     <div className="mt-8">
       <Link to="/" className="text-xs text-gray hover:text-terracotta">&larr; Back to dashboard</Link>
@@ -57,14 +59,30 @@ export default function ApplicationDetail() {
             <p className="text-xs text-gray mt-0.5">{application.location}</p>
           )}
         </div>
-        <StatusUpdater
-          applicationId={application.id}
-          currentStatus={application.status as any}
-          onUpdated={reload}
-        />
+        <div className="flex flex-col items-end gap-2">
+          <StatusUpdater
+            applicationId={application.id}
+            currentStatus={application.status as any}
+            onUpdated={reload}
+          />
+          <div className="flex items-center gap-1.5">
+            <label className="text-[10px] text-gray">Follow-up:</label>
+            <input
+              type="datetime-local"
+              value={application.followUpDate ? application.followUpDate.slice(0, 16) : ''}
+              onChange={async (e) => {
+                const value = e.target.value ? new Date(e.target.value).toISOString() : null
+                await updateFollowUpDate(application.id, value)
+                reload()
+              }}
+              className="text-[11px] bg-offwhite border border-border rounded-md px-1.5 py-1 text-navy focus:outline-none focus:border-terracotta"
+            />
+          </div>
+          {isOverdue && <p className="text-[11px] text-terracotta">Follow-up overdue</p>}
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Status timeline */}
         <div className="bg-offwhite border border-border rounded-xl p-4">
           <p className="text-xs font-mono text-gray mb-3">Status log</p>
@@ -85,23 +103,6 @@ export default function ApplicationDetail() {
               </div>
             ))}
           </div>
-        </div>
-
-        {/* Follow-up */}
-        <div className="bg-offwhite border border-border rounded-xl p-4">
-          <p className="text-xs font-mono text-gray mb-3">Follow-up date</p>
-          <input
-            type="date"
-            value={application.followUpDate ? application.followUpDate.slice(0, 10) : ''}
-            onChange={async (e) => {
-              await updateFollowUpDate(application.id, e.target.value || null)
-              reload()
-            }}
-            className="w-full bg-cream border border-border rounded-lg px-2 py-1.5 text-xs text-navy focus:outline-none focus:border-terracotta"
-          />
-          {application.followUpDate && new Date(application.followUpDate) <= new Date() && (
-            <p className="text-xs text-terracotta mt-2">Follow-up is overdue</p>
-          )}
         </div>
 
         {/* Notes */}
