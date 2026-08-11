@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { getApplication, updateFollowUpDate } from '../api/applications'
+import { getApplication } from '../api/applications'
 import StatusUpdater from '../components/StatusUpdater'
 import NoteForm from '../components/NoteForm'
 import DocumentForm from '../components/DocumentForm'
+import FollowUpPicker from '../components/FollowUpPicker'
 
 interface StatusEntry {
   id: number
@@ -45,8 +46,6 @@ export default function ApplicationDetail() {
   if (loading) return <p className="text-gray text-sm mt-8">Loading...</p>
   if (!application) return <p className="text-terracotta text-sm mt-8">Application not found.</p>
 
-  const isOverdue = application.followUpDate && new Date(application.followUpDate) <= new Date()
-
   return (
     <div className="mt-8">
       <Link to="/" className="text-xs text-gray hover:text-terracotta">&larr; Back to dashboard</Link>
@@ -65,20 +64,11 @@ export default function ApplicationDetail() {
             currentStatus={application.status as any}
             onUpdated={reload}
           />
-          <div className="flex items-center gap-1.5">
-            <label className="text-[10px] text-gray">Follow-up:</label>
-            <input
-              type="datetime-local"
-              value={application.followUpDate ? application.followUpDate.slice(0, 16) : ''}
-              onChange={async (e) => {
-                const value = e.target.value ? new Date(e.target.value).toISOString() : null
-                await updateFollowUpDate(application.id, value)
-                reload()
-              }}
-              className="text-[11px] bg-offwhite border border-border rounded-md px-1.5 py-1 text-navy focus:outline-none focus:border-terracotta"
-            />
-          </div>
-          {isOverdue && <p className="text-[11px] text-terracotta">Follow-up overdue</p>}
+          <FollowUpPicker
+            applicationId={application.id}
+            currentValue={application.followUpDate}
+            onUpdated={reload}
+          />
         </div>
       </div>
 
