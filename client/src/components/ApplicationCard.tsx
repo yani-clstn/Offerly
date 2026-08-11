@@ -6,7 +6,7 @@ export default function ApplicationCard({ application }: { application: Applicat
   return (
     <Link
       to={`/applications/${application.id}`}
-      className="block bg-offwhite border border-[#DEDCD3] rounded-xl p-4 hover:border-terracotta transition-colors"
+      className="block bg-offwhite border border-border rounded-xl p-4 hover:border-terracotta transition-colors"
     >
       <div className="flex justify-between items-start">
         <div>

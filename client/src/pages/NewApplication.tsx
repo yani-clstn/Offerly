@@ -26,27 +26,27 @@ export default function NewApplication() {
       <h1 className="font-display text-xl text-navy mb-4">New application</h1>
       <form onSubmit={handleSubmit} className="space-y-3">
         <input
-          className="w-full bg-offwhite border border-[#DEDCD3] rounded-lg px-3 py-2 text-sm text-navy placeholder:text-gray focus:outline-none focus:border-terracotta"
+          className="w-full bg-offwhite border border-border rounded-lg px-3 py-2 text-sm text-navy placeholder:text-gray focus:outline-none focus:border-terracotta"
           placeholder="Company"
           value={company}
           onChange={(e) => setCompany(e.target.value)}
           required
         />
         <input
-          className="w-full bg-offwhite border border-[#DEDCD3] rounded-lg px-3 py-2 text-sm text-navy placeholder:text-gray focus:outline-none focus:border-terracotta"
+          className="w-full bg-offwhite border border-border rounded-lg px-3 py-2 text-sm text-navy placeholder:text-gray focus:outline-none focus:border-terracotta"
           placeholder="Role"
           value={role}
           onChange={(e) => setRole(e.target.value)}
           required
         />
         <input
-          className="w-full bg-offwhite border border-[#DEDCD3] rounded-lg px-3 py-2 text-sm text-navy placeholder:text-gray focus:outline-none focus:border-terracotta"
+          className="w-full bg-offwhite border border-border rounded-lg px-3 py-2 text-sm text-navy placeholder:text-gray focus:outline-none focus:border-terracotta"
           placeholder="Location"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
         />
         <input
-          className="w-full bg-offwhite border border-[#DEDCD3] rounded-lg px-3 py-2 text-sm text-navy placeholder:text-gray focus:outline-none focus:border-terracotta"
+          className="w-full bg-offwhite border border-border rounded-lg px-3 py-2 text-sm text-navy placeholder:text-gray focus:outline-none focus:border-terracotta"
           placeholder="Job posting URL"
           value={jobPostingUrl}
           onChange={(e) => setJobPostingUrl(e.target.value)}

@@ -19,9 +19,9 @@ export default function NoteForm({ applicationId, onAdded }: { applicationId: nu
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2 mt-3 pt-3 border-t border-[#DEDCD3]">
+    <form onSubmit={handleSubmit} className="flex gap-2 mt-3 pt-3 border-t border-border">
       <input
-        className="flex-1 bg-cream border border-[#DEDCD3] rounded-lg px-2 py-1.5 text-xs text-navy placeholder:text-gray focus:outline-none focus:border-terracotta"
+        className="flex-1 bg-cream border border-border rounded-lg px-2 py-1.5 text-xs text-navy placeholder:text-gray focus:outline-none focus:border-terracotta"
         placeholder="Add a note..."
         value={content}
         onChange={(e) => setContent(e.target.value)}

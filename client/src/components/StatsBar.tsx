@@ -29,8 +29,7 @@ export default function StatsBar({ applications }: { applications: Application[]
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
       {items.map((item) => (
-        <div key={item.label} className="bg-offwhite border border-[#DEDCD3] rounded-lg p-3">
-          <p className="text-xs text-gray mb-1">{item.label}</p>
+        <div key={item.label} className="bg-offwhite border border-border rounded-lg p-3">
           <p className={`font-display text-2xl ${item.color}`}>{item.value}</p>
         </div>
       ))}

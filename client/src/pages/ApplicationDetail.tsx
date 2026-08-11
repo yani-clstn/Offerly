@@ -65,10 +65,10 @@ export default function ApplicationDetail() {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Status timeline */}
-        <div className="bg-offwhite border border-[#DEDCD3] rounded-xl p-4">
+        <div className="bg-offwhite border border-border rounded-xl p-4">
           <p className="text-xs font-mono text-gray mb-3">Status log</p>
           <div className="relative pl-4">
-            <div className="absolute left-[3px] top-1 bottom-1 w-px bg-[#DEDCD3]" />
+            <div className="absolute left-[3px] top-1 bottom-1 w-px bg-border" />
             {application.statusHistory.map((entry, i) => (
               <div key={entry.id} className="relative mb-3 last:mb-0">
                 <div
@@ -87,7 +87,7 @@ export default function ApplicationDetail() {
         </div>
 
         {/* Notes */}
-        <div className="bg-offwhite border border-[#DEDCD3] rounded-xl p-4">
+        <div className="bg-offwhite border border-border rounded-xl p-4">
           <p className="text-xs font-mono text-gray mb-3">Notes</p>
           {application.notes.length === 0 ? (
             <p className="text-xs text-gray mb-3">No notes yet.</p>
@@ -105,7 +105,7 @@ export default function ApplicationDetail() {
         </div>
 
         {/* Documents */}
-        <div className="bg-offwhite border border-[#DEDCD3] rounded-xl p-4">
+        <div className="bg-offwhite border border-border rounded-xl p-4">
           <p className="text-xs font-mono text-gray mb-3">Documents</p>
           {application.documents.length === 0 ? (
             <p className="text-xs text-gray">No documents yet.</p>

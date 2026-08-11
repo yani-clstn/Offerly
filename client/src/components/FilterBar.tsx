@@ -22,7 +22,7 @@ export default function FilterBar({
       <select
         value={statusFilter}
         onChange={(e) => onStatusFilterChange(e.target.value as Status | 'all')}
-        className="text-xs bg-offwhite border border-[#DEDCD3] rounded-lg px-2 py-1.5 text-navy focus:outline-none focus:border-terracotta"
+        className="text-xs bg-offwhite border border-border rounded-lg px-2 py-1.5 text-navy focus:outline-none focus:border-terracotta"
       >
         <option value="all">All statuses</option>
         {STATUSES.map((s) => (
@@ -33,7 +33,7 @@ export default function FilterBar({
       <select
         value={sortOption}
         onChange={(e) => onSortChange(e.target.value as SortOption)}
-        className="text-xs bg-offwhite border border-[#DEDCD3] rounded-lg px-2 py-1.5 text-navy focus:outline-none focus:border-terracotta"
+        className="text-xs bg-offwhite border border-border rounded-lg px-2 py-1.5 text-navy focus:outline-none focus:border-terracotta"
       >
         <option value="newest">Newest first</option>
         <option value="oldest">Oldest first</option>

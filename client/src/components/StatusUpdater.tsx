@@ -57,7 +57,7 @@ export default function StatusUpdater({
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-1.5 bg-offwhite border border-[#DEDCD3] rounded-lg shadow-lg py-1.5 z-10 min-w-[140px]">
+        <div className="absolute right-0 mt-1.5 bg-offwhite border border-border rounded-lg shadow-lg py-1.5 z-10 min-w-[140px]">
           {STATUSES.map((status) => (
             <button
               key={status}
