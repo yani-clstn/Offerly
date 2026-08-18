@@ -14,21 +14,25 @@ Like most CS students and job seekers, chaos is tracking job applications in a s
 - **Notes** — attach multiple timestamped notes to any application (interview prep, follow-up thoughts, etc.)
 - **Document tracking** — link resume/cover letter versions (as external URLs, e.g. Google Drive) to specific applications
 - **Filtering & search** *(in progress)*
-- **Kanban board view** *(planned)*
+- **Kanban board view** - drag and drop existing applications
 
 ## Tech Stack
 
 **Frontend**
-- React + Vite
-- TypeScript
-- React Router DOM
-- Tailwind CSS v4
+- Framework: React 18+ with TypeScript
+- Routing: React Router (react-router-dom)
+- Styling & Design System: Tailwind CSS with custom CSS variables (--cream, --offwhite, --navy, --terracotta, --border) supporting theme-aware light/dark modes
+- Drag-and-Drop: @hello-pangea/dnd (for interactive Kanban board column updates)
+- Build Tool & Hosting: Vite, deployed on Vercel
 
 **Backend**
-- Hono (lightweight TypeScript web framework)
-- Drizzle ORM
-- Neon (serverless PostgreSQL)
-- REST API
+- Server Framework: Hono (Node.js / Edge-ready TypeScript API)
+- Database & ORM: PostgreSQL hosted on Neon, managed via Drizzle ORM
+- Authentication: Better Auth (session-based authentication with scoped database queries)
+
+**Development & Tooling**
+- Type Safety: Full-stack TypeScript (strict mode enabled with verbatimModuleSyntax)
+- Version Control: Git & GitHub (feature-branch deployment workflow)
 
 ## Database Schema
 
