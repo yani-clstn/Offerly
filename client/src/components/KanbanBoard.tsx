@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import {
   DragDropContext,
   Droppable,
@@ -78,12 +79,13 @@ export default function KanbanBoard({ applications, onStatusChange }: KanbanBoar
                     {colApps.map((app, index) => (
                       <Draggable key={app.id} draggableId={String(app.id)} index={index}>
                         {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
-                          <div
+                          <Link
+                            to={`/applications/${app.id}`}
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
-                            className={`bg-cream border border-border rounded-lg p-3 mb-2 shadow-sm hover:border-terracotta transition-colors ${
-                              snapshot.isDragging ? 'shadow-md border-terracotta' : ''
+                            className={`block bg-cream border border-border rounded-lg p-3 mb-2 shadow-xs hover:border-terracotta transition-colors ${
+                              snapshot.isDragging ? 'shadow-md border-terracotta cursor-grabbing' : 'cursor-pointer'
                             }`}
                           >
                             <p className="font-display text-sm text-navy font-medium leading-snug">
@@ -93,7 +95,7 @@ export default function KanbanBoard({ applications, onStatusChange }: KanbanBoar
                             {app.location && (
                               <p className="text-[10px] text-gray/70 mt-1">{app.location}</p>
                             )}
-                          </div>
+                          </Link>
                         )}
                       </Draggable>
                     ))}
