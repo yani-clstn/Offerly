@@ -4,7 +4,10 @@ import type { Application, Status } from '../types/application'
 import ApplicationCard from '../components/ApplicationCard'
 import StatsBar from '../components/StatsBar'
 import FilterBar, { type SortOption } from '../components/FilterBar'
+import KanbanBoard from '../components/KanbanBoard'
 import { useSession } from '../lib/auth-client'
+
+type ViewMode = 'grid' | 'kanban'
 
 export default function Dashboard() {
   const { data: session } = useSession()
@@ -13,6 +16,7 @@ export default function Dashboard() {
   const [error, setError] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState<Status | 'all'>('all')
   const [sortOption, setSortOption] = useState<SortOption>('newest')
+  const [viewMode, setViewMode] = useState<ViewMode>('grid')
 
   useEffect(() => {
     getApplications()
@@ -60,26 +64,64 @@ export default function Dashboard() {
 
   return (
     <div className="mt-8 space-y-6">
-      {firstName && (
-        <h1 className="font-display text-xl text-navy mb-8 pb-1 leading-relaxed">
-          Hello there, <span className="font-script italic text-terracotta text-2xl ml-1.5">{firstName}!</span>
-        </h1>
-      )}
-      <StatsBar applications={applications} />
-      <FilterBar
-        statusFilter={statusFilter}
-        onStatusFilterChange={setStatusFilter}
-        sortOption={sortOption}
-        onSortChange={setSortOption}
-      />
-      {visibleApplications.length === 0 ? (
-        <p className="text-gray text-sm">No applications match this filter.</p>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {visibleApplications.map((app) => (
-            <ApplicationCard key={app.id} application={app} />
-          ))}
+      {/* Header and View Mode Toggle */}
+      <div className="flex items-center justify-between">
+        {firstName && (
+          <h1 className="font-display text-xl text-navy leading-relaxed">
+            Hello there, <span className="font-script italic text-terracotta text-2xl ml-1.5">{firstName}!</span>
+          </h1>
+        )}
+
+        <div className="flex items-center bg-offwhite border border-border rounded-lg p-1 text-xs">
+          <button
+            onClick={() => setViewMode('grid')}
+            className={`px-3 py-1 rounded-md transition-colors cursor-pointer ${
+              viewMode === 'grid'
+                ? 'bg-cream text-navy font-medium shadow-xs'
+                : 'text-gray hover:text-navy'
+            }`}
+          >
+            Grid
+          </button>
+          <button
+            onClick={() => setViewMode('kanban')}
+            className={`px-3 py-1 rounded-md transition-colors cursor-pointer ${
+              viewMode === 'kanban'
+                ? 'bg-cream text-navy font-medium shadow-xs'
+                : 'text-gray hover:text-navy'
+            }`}
+          >
+            Kanban
+          </button>
         </div>
+      </div>
+
+      <StatsBar applications={applications} />
+
+      {/* View Switcher */}
+      {viewMode === 'grid' ? (
+        <>
+          <FilterBar
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+            sortOption={sortOption}
+            onSortChange={setSortOption}
+          />
+          {visibleApplications.length === 0 ? (
+            <p className="text-gray text-sm">No applications match this filter.</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {visibleApplications.map((app) => (
+                <ApplicationCard key={app.id} application={app} />
+              ))}
+            </div>
+          )}
+        </>
+      ) : (
+        <KanbanBoard
+          applications={applications}
+          onStatusChange={(updatedApps) => setApplications(updatedApps)}
+        />
       )}
     </div>
   )
