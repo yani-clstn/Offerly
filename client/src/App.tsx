@@ -6,6 +6,7 @@ import NewApplication from './pages/NewApplication'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import ProtectedRoute from './components/ProtectedRoute'
+import Analytics from './pages/Analytics'
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/applications/new" element={<ProtectedRoute><NewApplication /></ProtectedRoute>} />
           <Route path="/applications/:id" element={<ProtectedRoute><ApplicationDetail /></ProtectedRoute>} />
+          <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
         </Routes>
       </AppShell>
     </BrowserRouter>

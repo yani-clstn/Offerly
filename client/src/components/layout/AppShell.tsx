@@ -29,6 +29,12 @@ export default function AppShell({ children }: { children: ReactNode }) {
               >
                 New application
               </Link>
+              <Link
+                to="/analytics"
+                className="text-xs text-gray hover:text-terracotta transition-colors"
+              >
+                Analytics
+              </Link>
               <button
                 onClick={handleLogout}
                 className="text-xs text-gray hover:text-terracotta transition-colors"
