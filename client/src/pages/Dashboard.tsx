@@ -96,7 +96,14 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <StatsBar applications={applications} />
+      <StatsBar
+        applications={applications}
+        activeStatusFilter={statusFilter}
+        onSelectStatus={(status) => {
+          setStatusFilter(status)
+          setViewMode('grid')
+        }}
+      />
 
       {/* View Switcher */}
       {viewMode === 'grid' ? (

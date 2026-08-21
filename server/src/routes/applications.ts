@@ -44,11 +44,26 @@ app.post('/', async (c) => {
   const user = c.get('user')
   const body = await c.req.json()
 
-  const { company, role, jobPostingUrl, location, workType, salaryMin, salaryMax, source, appliedAt } = body
+  const {
+    company,
+    role,
+    jobPostingUrl,
+    location,
+    distanceKm,
+    employmentType,
+    workModel,
+    salaryMin,
+    salaryMax,
+    source,
+    appliedAt,
+    status,
+  } = body
 
   if (!company || !role) {
     return c.json({ error: 'company and role are required' }, 400)
   }
+
+  const initialStatus = status || 'wishlist'
 
   const [newApplication] = await db
     .insert(applications)
@@ -58,18 +73,20 @@ app.post('/', async (c) => {
       role,
       jobPostingUrl,
       location,
-      workType,
+      distanceKm: distanceKm ? String(distanceKm) : undefined,
+      employmentType,
+      workModel,
       salaryMin,
       salaryMax,
       source,
       appliedAt: appliedAt ? new Date(appliedAt) : undefined,
-      status: 'wishlist',
+      status: initialStatus,
     })
     .returning()
 
   await db.insert(statusHistory).values({
     applicationId: newApplication.id,
-    status: 'wishlist',
+    status: initialStatus,
   })
 
   return c.json(newApplication, 201)
@@ -83,6 +100,9 @@ app.patch('/:id', async (c) => {
 
   const updateData = {
     ...body,
+    ...(body.distanceKm !== undefined && {
+      distanceKm: body.distanceKm !== null ? String(body.distanceKm) : null,
+    }),
     updatedAt: new Date(),
     ...(body.followUpDate !== undefined && {
       followUpDate: body.followUpDate ? new Date(body.followUpDate) : null,
