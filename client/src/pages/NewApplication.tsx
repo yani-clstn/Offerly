@@ -15,12 +15,15 @@ export default function NewApplication() {
     e.preventDefault()
     setSubmitting(true)
     setError(null)
+
     try {
       const created = await createApplication({
-        company,
-        role,
-        jobPostingUrl: jobPostingUrl || undefined,
-        location: location || undefined,
+        company: company.trim(),
+        role: role.trim(),
+        status: 'applied',
+        appliedAt: new Date().toISOString(),
+        jobPostingUrl: jobPostingUrl.trim() || undefined,
+        location: location.trim() || undefined,
       })
       navigate(`/applications/${created.id}`)
     } catch {
@@ -88,7 +91,7 @@ export default function NewApplication() {
             <input
               id="location"
               className="w-full bg-cream border border-border rounded-lg px-3 py-2 text-sm text-navy placeholder:text-gray/60 focus:outline-none focus:border-terracotta transition-colors"
-              placeholder="e.g. Remote, Hybrid, Metro Manila"
+              placeholder="e.g. Makati, Metro Manila"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
             />
