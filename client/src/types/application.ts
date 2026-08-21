@@ -10,17 +10,19 @@ export type Status =
 
 export interface Application {
   id: number
+  userId: string
   company: string
   role: string
-  jobPostingUrl: string | null
-  location: string | null
-  workType: 'remote' | 'hybrid' | 'onsite' | null
-  salaryMin: string | null
-  salaryMax: string | null
+  jobPostingUrl?: string | null
+  location?: string | null
+  salaryMin?: number | null
+  salaryMax?: number | null
+  salaryPeriod?: 'hourly' | 'monthly' | 'yearly' | null
+  currency?: string | null
   status: Status
-  source: string | null
-  appliedAt: string | null
-  followUpDate: string | null
+  source?: string | null
+  appliedAt?: string | null
+  followUpDate?: string | null
   createdAt: string
   updatedAt: string
 }

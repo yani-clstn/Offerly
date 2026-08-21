@@ -17,6 +17,8 @@ export const workTypeEnum = pgEnum('work_type', ['remote', 'hybrid', 'onsite'])
 
 export const documentTypeEnum = pgEnum('document_type', ['resume', 'cover_letter', 'other'])
 
+export const salaryPeriodEnum = pgEnum('salary_period', ['hourly', 'monthly', 'yearly'])
+
 // ── Applications ──
 export const applications = pgTable('applications', {
   id: serial('id').primaryKey(),
@@ -28,8 +30,10 @@ export const applications = pgTable('applications', {
   jobPostingUrl: text('job_posting_url'),
   location: varchar('location', { length: 255 }),
   workType: workTypeEnum('work_type'),
-  salaryMin: decimal('salary_min', { precision: 10, scale: 2 }),
-  salaryMax: decimal('salary_max', { precision: 10, scale: 2 }),
+  salaryMin: decimal('salary_min', { precision: 12, scale: 2 }),
+  salaryMax: decimal('salary_max', { precision: 12, scale: 2 }),
+  salaryPeriod: salaryPeriodEnum('salary_period').default('yearly'),
+  currency: varchar('currency', { length: 10 }).default('USD'),
   status: statusEnum('status').notNull().default('wishlist'),
   source: varchar('source', { length: 100 }),
   appliedAt: timestamp('applied_at'),

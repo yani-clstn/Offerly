@@ -18,6 +18,10 @@ interface ApplicationWithRelations {
   company: string
   role: string
   location: string | null
+  salaryMin: number | null
+  salaryMax: number | null
+  salaryPeriod: 'hourly' | 'monthly' | 'yearly' | null
+  currency: string | null
   status: string
   jobPostingUrl: string | null
   followUpDate: string | null
@@ -46,19 +50,56 @@ export default function ApplicationDetail() {
   if (loading) return <p className="text-gray text-sm mt-8">Loading...</p>
   if (!application) return <p className="text-terracotta text-sm mt-8">Application not found.</p>
 
+  const formatSalary = () => {
+    const { salaryMin, salaryMax, salaryPeriod } = application
+    if (!salaryMin && !salaryMax) return null
+
+    const currencySymbol = '$'
+    const periodLabel = salaryPeriod ? ` / ${salaryPeriod.replace('ly', '')}` : ''
+
+    if (salaryMin && salaryMax) {
+      return `${currencySymbol}${Number(salaryMin).toLocaleString()} – ${currencySymbol}${Number(salaryMax).toLocaleString()}${periodLabel}`
+    }
+    if (salaryMin) {
+      return `From ${currencySymbol}${Number(salaryMin).toLocaleString()}${periodLabel}`
+    }
+    return `Up to ${currencySymbol}${Number(salaryMax).toLocaleString()}${periodLabel}`
+  }
+
+  const salaryString = formatSalary()
+
   return (
     <div className="mt-8">
-      <Link to="/" className="text-xs text-gray hover:text-terracotta">&larr; Back to dashboard</Link>
+      <Link to="/" className="text-xs text-gray hover:text-terracotta transition-colors">
+        &larr; Back to dashboard
+      </Link>
 
-      <div className="flex justify-between items-start mt-4 mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mt-4 mb-6">
         <div>
           <h1 className="font-display text-2xl text-navy">{application.company}</h1>
-          <p className="text-sm text-gray mt-1">{application.role}</p>
-          {application.location && (
-            <p className="text-xs text-gray mt-0.5">{application.location}</p>
-          )}
+          <p className="text-sm text-gray mt-1 font-medium">{application.role}</p>
+          
+          <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-gray">
+            {application.location && <span>📍 {application.location}</span>}
+            {salaryString && (
+              <span className="bg-cream border border-border px-2 py-0.5 rounded text-navy font-mono">
+                💰 {salaryString}
+              </span>
+            )}
+            {application.jobPostingUrl && (
+              <a
+                href={application.jobPostingUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-terracotta hover:underline inline-flex items-center gap-1"
+              >
+                Job listing &rarr;
+              </a>
+            )}
+          </div>
         </div>
-        <div className="flex flex-col items-end gap-2">
+
+        <div className="flex flex-col items-start sm:items-end gap-2 w-full sm:w-auto">
           <StatusUpdater
             applicationId={application.id}
             currentStatus={application.status as any}
