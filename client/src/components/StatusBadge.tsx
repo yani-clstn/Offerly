@@ -1,14 +1,14 @@
 import type { Status } from '../types/application'
 
 export const STATUS_STYLES: Record<Status, string> = {
-  wishlist: 'bg-[#EDECE7] text-gray',
-  applied: 'bg-[#EDECE7] text-gray',
-  phone_screen: 'bg-[#F7E4D3] text-[#8A4A1F]',
-  interview: 'bg-[#F7E4D3] text-[#8A4A1F]',
-  offer: 'bg-navy text-offwhite',
-  accepted: 'bg-navy text-offwhite',
-  rejected: 'bg-[#EDECE7] text-[#9A9890]',
-  withdrawn: 'bg-[#EDECE7] text-[#9A9890]',
+  wishlist: 'bg-offwhite text-gray border border-border',
+  applied: 'bg-offwhite text-navy border border-border',
+  phone_screen: 'bg-cream text-terracotta border border-border',
+  interview: 'bg-cream text-terracotta border border-border',
+  offer: 'bg-navy text-cream border border-navy',
+  accepted: 'bg-navy text-cream border border-navy',
+  rejected: 'bg-offwhite text-gray/60 border border-border',
+  withdrawn: 'bg-offwhite text-gray/60 border border-border',
 }
 
 export const STATUS_LABELS: Record<Status, string> = {
@@ -24,7 +24,7 @@ export const STATUS_LABELS: Record<Status, string> = {
 
 export default function StatusBadge({ status }: { status: Status }) {
   return (
-    <span className={`text-xs px-2 py-1 rounded-full ${STATUS_STYLES[status]}`}>
+    <span className={`text-xs px-2.5 py-1 rounded-full font-medium transition-colors ${STATUS_STYLES[status]}`}>
       {STATUS_LABELS[status]}
     </span>
   )
