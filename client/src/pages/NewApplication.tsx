@@ -8,6 +8,9 @@ export default function NewApplication() {
   const [role, setRole] = useState('')
   const [jobPostingUrl, setJobPostingUrl] = useState('')
   const [location, setLocation] = useState('')
+  const [distanceKm, setDistanceKm] = useState('')
+  const [employmentType, setEmploymentType] = useState('')
+  const [workModel, setWorkModel] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -23,6 +26,9 @@ export default function NewApplication() {
         status: 'applied',
         jobPostingUrl: jobPostingUrl.trim() || undefined,
         location: location.trim() || undefined,
+        distanceKm: distanceKm ? Number(distanceKm) : undefined,
+        employmentType: (employmentType as any) || undefined,
+        workModel: (workModel as any) || undefined,
       })
       navigate(`/applications/${created.id}`)
     } catch {
@@ -83,17 +89,73 @@ export default function NewApplication() {
             </div>
           </div>
 
-          <div>
-            <label htmlFor="location" className="block text-xs font-mono text-navy mb-1.5">
-              Location
-            </label>
-            <input
-              id="location"
-              className="w-full bg-cream border border-border rounded-lg px-3 py-2 text-sm text-navy placeholder:text-gray/60 focus:outline-none focus:border-terracotta transition-colors"
-              placeholder="e.g. Makati, Metro Manila"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="location" className="block text-xs font-mono text-navy mb-1.5">
+                Location
+              </label>
+              <input
+                id="location"
+                className="w-full bg-cream border border-border rounded-lg px-3 py-2 text-sm text-navy placeholder:text-gray/60 focus:outline-none focus:border-terracotta transition-colors"
+                placeholder="e.g. Makati, Metro Manila"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="distanceKm" className="block text-xs font-mono text-navy mb-1.5">
+                Distance (km)
+              </label>
+              <input
+                id="distanceKm"
+                type="number"
+                step="0.1"
+                min="0"
+                className="w-full bg-cream border border-border rounded-lg px-3 py-2 text-sm text-navy placeholder:text-gray/60 focus:outline-none focus:border-terracotta transition-colors"
+                placeholder="e.g. 12.5"
+                value={distanceKm}
+                onChange={(e) => setDistanceKm(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="employmentType" className="block text-xs font-mono text-navy mb-1.5">
+                Employment Type
+              </label>
+              <select
+                id="employmentType"
+                className="w-full bg-cream border border-border rounded-lg px-3 py-2 text-sm text-navy focus:outline-none focus:border-terracotta transition-colors"
+                value={employmentType}
+                onChange={(e) => setEmploymentType(e.target.value)}
+              >
+                <option value="">Select arrangement</option>
+                <option value="full_time">Full-time</option>
+                <option value="part_time">Part-time</option>
+                <option value="contract">Contract / Freelance</option>
+                <option value="temporary">Temporary / Seasonal</option>
+                <option value="internship">Internship</option>
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="workModel" className="block text-xs font-mono text-navy mb-1.5">
+                Work Model
+              </label>
+              <select
+                id="workModel"
+                className="w-full bg-cream border border-border rounded-lg px-3 py-2 text-sm text-navy focus:outline-none focus:border-terracotta transition-colors"
+                value={workModel}
+                onChange={(e) => setWorkModel(e.target.value)}
+              >
+                <option value="">Select model</option>
+                <option value="onsite">On-site</option>
+                <option value="remote">Remote</option>
+                <option value="hybrid">Hybrid</option>
+              </select>
+            </div>
           </div>
 
           <div>
