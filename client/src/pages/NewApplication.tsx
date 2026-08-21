@@ -8,9 +8,6 @@ export default function NewApplication() {
   const [role, setRole] = useState('')
   const [jobPostingUrl, setJobPostingUrl] = useState('')
   const [location, setLocation] = useState('')
-  const [salaryMin, setSalaryMin] = useState('')
-  const [salaryMax, setSalaryMax] = useState('')
-  const [salaryPeriod, setSalaryPeriod] = useState<'hourly' | 'monthly' | 'yearly'>('yearly')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -24,9 +21,6 @@ export default function NewApplication() {
         role,
         jobPostingUrl: jobPostingUrl || undefined,
         location: location || undefined,
-        salaryMin: salaryMin ? Number(salaryMin) : undefined,
-        salaryMax: salaryMax ? Number(salaryMax) : undefined,
-        salaryPeriod,
       })
       navigate(`/applications/${created.id}`)
     } catch {
@@ -98,54 +92,6 @@ export default function NewApplication() {
               value={location}
               onChange={(e) => setLocation(e.target.value)}
             />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div>
-              <label htmlFor="salaryMin" className="block text-xs font-mono text-navy mb-1.5">
-                Salary Min
-              </label>
-              <input
-                id="salaryMin"
-                type="number"
-                step="any"
-                className="w-full bg-cream border border-border rounded-lg px-3 py-2 text-sm text-navy placeholder:text-gray/60 focus:outline-none focus:border-terracotta transition-colors"
-                placeholder="e.g. 30000"
-                value={salaryMin}
-                onChange={(e) => setSalaryMin(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="salaryMax" className="block text-xs font-mono text-navy mb-1.5">
-                Salary Max
-              </label>
-              <input
-                id="salaryMax"
-                type="number"
-                step="any"
-                className="w-full bg-cream border border-border rounded-lg px-3 py-2 text-sm text-navy placeholder:text-gray/60 focus:outline-none focus:border-terracotta transition-colors"
-                placeholder="e.g. 45000"
-                value={salaryMax}
-                onChange={(e) => setSalaryMax(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="salaryPeriod" className="block text-xs font-mono text-navy mb-1.5">
-                Period
-              </label>
-              <select
-                id="salaryPeriod"
-                className="w-full bg-cream border border-border rounded-lg px-3 py-2 text-sm text-navy focus:outline-none focus:border-terracotta transition-colors"
-                value={salaryPeriod}
-                onChange={(e) => setSalaryPeriod(e.target.value as 'hourly' | 'monthly' | 'yearly')}
-              >
-                <option value="yearly">Per year</option>
-                <option value="monthly">Per month</option>
-                <option value="hourly">Per hour</option>
-              </select>
-            </div>
           </div>
 
           <div>

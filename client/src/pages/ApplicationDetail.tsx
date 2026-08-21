@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { getApplication } from '../api/applications'
+import { getApplication, updateApplication } from '../api/applications'
 import StatusUpdater from '../components/StatusUpdater'
 import NoteForm from '../components/NoteForm'
 import DocumentForm from '../components/DocumentForm'
@@ -30,6 +30,111 @@ interface ApplicationWithRelations {
   documents: { id: number; label: string; url: string; type: string }[]
 }
 
+interface SalaryEditorProps {
+  applicationId: number
+  salaryMin?: number | null
+  salaryMax?: number | null
+  salaryPeriod?: 'hourly' | 'monthly' | 'yearly' | null
+  onUpdated: () => void
+}
+
+function SalaryEditor({
+  applicationId,
+  salaryMin,
+  salaryMax,
+  salaryPeriod,
+  onUpdated,
+}: SalaryEditorProps) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [min, setMin] = useState(salaryMin ? String(salaryMin) : '')
+  const [max, setMax] = useState(salaryMax ? String(salaryMax) : '')
+  const [period, setPeriod] = useState<'hourly' | 'monthly' | 'yearly'>(salaryPeriod || 'yearly')
+  const [saving, setSaving] = useState(false)
+
+  const formatSalaryDisplay = () => {
+    if (!salaryMin && !salaryMax) return null
+    const periodLabel = salaryPeriod ? ` / ${salaryPeriod.replace('ly', '')}` : ''
+    if (salaryMin && salaryMax) {
+      return `₱${Number(salaryMin).toLocaleString()} – ₱${Number(salaryMax).toLocaleString()}${periodLabel}`
+    }
+    if (salaryMin) return `From ₱${Number(salaryMin).toLocaleString()}${periodLabel}`
+    return `Up to ₱${Number(salaryMax).toLocaleString()}${periodLabel}`
+  }
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault()
+    setSaving(true)
+    try {
+      await updateApplication(applicationId, {
+        salaryMin: min ? Number(min) : null,
+        salaryMax: max ? Number(max) : null,
+        salaryPeriod: period,
+      })
+      setIsEditing(false)
+      onUpdated()
+    } catch {
+      alert('Failed to update salary details.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const salaryDisplay = formatSalaryDisplay()
+
+  if (!isEditing) {
+    return (
+      <button
+        onClick={() => setIsEditing(true)}
+        className="bg-cream border border-border px-2 py-0.5 rounded text-xs text-navy font-mono hover:border-terracotta transition-colors"
+      >
+        {salaryDisplay ? `💰 ${salaryDisplay}` : '➕ Add Salary'}
+      </button>
+    )
+  }
+
+  return (
+    <form onSubmit={handleSave} className="flex flex-wrap items-center gap-2 bg-cream border border-border p-2 rounded-lg text-xs">
+      <input
+        type="number"
+        placeholder="Min"
+        value={min}
+        onChange={(e) => setMin(e.target.value)}
+        className="w-20 bg-offwhite border border-border rounded px-2 py-1 text-navy text-xs focus:outline-none"
+      />
+      <input
+        type="number"
+        placeholder="Max"
+        value={max}
+        onChange={(e) => setMax(e.target.value)}
+        className="w-20 bg-offwhite border border-border rounded px-2 py-1 text-navy text-xs focus:outline-none"
+      />
+      <select
+        value={period}
+        onChange={(e) => setPeriod(e.target.value as any)}
+        className="bg-offwhite border border-border rounded px-2 py-1 text-navy text-xs focus:outline-none"
+      >
+        <option value="yearly">/yr</option>
+        <option value="monthly">/mo</option>
+        <option value="hourly">/hr</option>
+      </select>
+      <button
+        type="submit"
+        disabled={saving}
+        className="bg-navy text-cream px-2 py-1 rounded text-xs hover:bg-terracotta transition-colors"
+      >
+        {saving ? '...' : 'Save'}
+      </button>
+      <button
+        type="button"
+        onClick={() => setIsEditing(false)}
+        className="text-gray text-xs hover:text-navy px-1"
+      >
+        Cancel
+      </button>
+    </form>
+  )
+}
+
 export default function ApplicationDetail() {
   const { id } = useParams()
   const [application, setApplication] = useState<ApplicationWithRelations | null>(null)
@@ -50,24 +155,6 @@ export default function ApplicationDetail() {
   if (loading) return <p className="text-gray text-sm mt-8">Loading...</p>
   if (!application) return <p className="text-terracotta text-sm mt-8">Application not found.</p>
 
-  const formatSalary = () => {
-    const { salaryMin, salaryMax, salaryPeriod } = application
-    if (!salaryMin && !salaryMax) return null
-
-    const currencySymbol = '$'
-    const periodLabel = salaryPeriod ? ` / ${salaryPeriod.replace('ly', '')}` : ''
-
-    if (salaryMin && salaryMax) {
-      return `${currencySymbol}${Number(salaryMin).toLocaleString()} – ${currencySymbol}${Number(salaryMax).toLocaleString()}${periodLabel}`
-    }
-    if (salaryMin) {
-      return `From ${currencySymbol}${Number(salaryMin).toLocaleString()}${periodLabel}`
-    }
-    return `Up to ${currencySymbol}${Number(salaryMax).toLocaleString()}${periodLabel}`
-  }
-
-  const salaryString = formatSalary()
-
   return (
     <div className="mt-8">
       <Link to="/" className="text-xs text-gray hover:text-terracotta transition-colors">
@@ -81,11 +168,13 @@ export default function ApplicationDetail() {
           
           <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-gray">
             {application.location && <span>📍 {application.location}</span>}
-            {salaryString && (
-              <span className="bg-cream border border-border px-2 py-0.5 rounded text-navy font-mono">
-                💰 {salaryString}
-              </span>
-            )}
+            <SalaryEditor
+              applicationId={application.id}
+              salaryMin={application.salaryMin}
+              salaryMax={application.salaryMax}
+              salaryPeriod={application.salaryPeriod}
+              onUpdated={reload}
+            />
             {application.jobPostingUrl && (
               <a
                 href={application.jobPostingUrl}

@@ -25,6 +25,17 @@ export async function createApplication(data: Partial<Application>) {
   return res.json()
 }
 
+export async function updateApplication(id: number, data: Partial<Application>): Promise<Application> {
+  const res = await fetch(`${BASE_URL}/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) throw new Error('Failed to update application')
+  return res.json()
+}
+
 export async function updateApplicationStatus(id: number, status: string, note?: string) {
   const res = await fetch(`${BASE_URL}/${id}/status`, {
     method: 'PATCH',
