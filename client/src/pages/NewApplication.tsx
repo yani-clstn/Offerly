@@ -1,20 +1,42 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { MapPin } from 'lucide-react'
 import { createApplication } from '../api/applications.ts'
 
-// Helper function: Haversine distance in kilometers
-function calculateHaversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const R = 6371 // Radius of Earth in km
-  const dLat = ((lat2 - lat1) * Math.PI) / 180
-  const dLon = ((lon2 - lon1) * Math.PI) / 180
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2)
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-  return Math.round(R * c * 10) / 10
+// Fetch Lat/Lng coordinates for a location string via Nominatim
+async function getCoordinates(query: string): Promise<{ lat: number; lon: number } | null> {
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`
+    )
+    const data = await res.json()
+    if (!data || data.length === 0) return null
+    return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) }
+  } catch {
+    return null
+  }
+}
+
+// Fetch actual driving distance in km using Open-Source Routing Machine (OSRM)
+async function getDrivingDistanceKm(
+  start: { lat: number; lng: number },
+  end: { lat: number; lon: number }
+): Promise<number | null> {
+  try {
+    // OSRM expects coordinates in {longitude},{latitude} format
+    const url = `https://router.project-osrm.org/route/v1/driving/${start.lng},${start.lat};${end.lon},${end.lat}?overview=false`
+    const res = await fetch(url)
+    const data = await res.json()
+
+    if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
+      const distanceMeters = data.routes[0].distance
+      const distanceKm = distanceMeters / 1000
+      return Math.round(distanceKm * 10) / 10 // Round to 1 decimal place
+    }
+    return null
+  } catch {
+    return null
+  }
 }
 
 export default function NewApplication() {
@@ -64,25 +86,21 @@ export default function NewApplication() {
     )
   }
 
-  // Geocode location string and update distance
+  // Geocode location string and fetch actual OSRM driving distance
   async function computeDistance(coords: { lat: number; lng: number }, destination: string) {
     if (!destination) return
     setCalculatingDistance(true)
 
     try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destination)}`
-      )
-      const data = await res.json()
-
-      if (data && data.length > 0) {
-        const targetLat = parseFloat(data[0].lat)
-        const targetLng = parseFloat(data[0].lon)
-        const dist = calculateHaversineDistance(coords.lat, coords.lng, targetLat, targetLng)
-        setDistanceKm(String(dist))
+      const targetCoords = await getCoordinates(destination)
+      if (targetCoords) {
+        const realRoadDistance = await getDrivingDistanceKm(coords, targetCoords)
+        if (realRoadDistance !== null) {
+          setDistanceKm(String(realRoadDistance))
+        }
       }
     } catch {
-      // Graceful fallback to manual entry if geocoding fails
+      // Graceful fallback to manual entry if request fails
     } finally {
       setCalculatingDistance(false)
     }
@@ -173,9 +191,10 @@ export default function NewApplication() {
                   type="button"
                   onClick={handleGetLocation}
                   disabled={locatingUser}
-                  className="text-[10px] text-terracotta hover:underline disabled:opacity-50 cursor-pointer"
+                  className="inline-flex items-center gap-1 text-[10px] text-terracotta hover:underline disabled:opacity-50 cursor-pointer"
                 >
-                  {locatingUser ? 'Locating...' : '📍 Use my location'}
+                  <MapPin className="w-3 h-3" />
+                  {locatingUser ? 'Locating...' : 'Use my location'}
                 </button>
               </div>
               <input
