@@ -68,3 +68,15 @@ export async function addDocument(applicationId: number, data: { type: string; l
   if (!res.ok) throw new Error('Failed to add document')
   return res.json()
 }
+
+export interface StageDuration {
+  status: string
+  avgDays: number
+  count: number
+}
+
+export async function getStageDurations(): Promise<StageDuration[]> {
+  const res = await fetch(`${BASE_URL}/analytics/stage-durations`, { credentials: 'include' })
+  if (!res.ok) throw new Error('Failed to fetch analytics')
+  return res.json()
+}
