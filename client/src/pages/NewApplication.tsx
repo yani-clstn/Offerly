@@ -111,20 +111,29 @@ export default function NewApplication() {
     setSubmitting(true)
     setError(null)
 
+    // Ensure URL has a protocol if user entered a raw domain (e.g., linkedin.com)
+    let formattedUrl = jobPostingUrl.trim()
+    if (formattedUrl && !/^https?:\/\//i.test(formattedUrl)) {
+      formattedUrl = `https://${formattedUrl}`
+    }
+
+    // Safely parse numeric distance
+    const parsedDistance = distanceKm ? parseFloat(distanceKm) : undefined
+
     try {
       const created = await createApplication({
         company: company.trim(),
         role: role.trim(),
         status: 'applied',
-        jobPostingUrl: jobPostingUrl.trim() || undefined,
+        jobPostingUrl: formattedUrl || undefined,
         location: location.trim() || undefined,
-        distanceKm: distanceKm ? Number(distanceKm) : undefined,
-        employmentType: (employmentType as any) || undefined,
-        workModel: (workModel as any) || undefined,
+        distanceKm: parsedDistance && !isNaN(parsedDistance) ? parsedDistance : undefined,
+        employmentType: employmentType ? (employmentType as any) : undefined,
+        workModel: workModel ? (workModel as any) : undefined,
       })
       navigate(`/applications/${created.id}`)
-    } catch {
-      setError('Could not create application. Please try again.')
+    } catch (err: any) {
+      setError(err?.message || 'Could not create application. Please try again.')
       setSubmitting(false)
     }
   }
