@@ -1,89 +1,104 @@
 # Offerly — AI Handoff Doc
 
 ## Overview
-Job application tracker. Full-stack portfolio project. Status pipeline + timestamped status history + notes + documents + auth (multi-user) + analytics.
+Full-stack job application tracking platform. Features multi-tenant authentication, pipeline status history tracking, interactive Kanban board, attached notes/documents, distance calculation, theme toggling, and stage-duration analytics.
 
 ## Stack
-- Frontend: React + Vite + TypeScript + React Router DOM + Tailwind CSS v4
-- Backend: Hono + TypeScript
-- DB: Neon (serverless Postgres) + Drizzle ORM
-- Auth: Better Auth (email/password)
-- Deploy: Vercel (two separate projects — frontend and backend)
+- **Frontend:** React + Vite + TypeScript + React Router DOM + Tailwind CSS v4 + `@hello-pangea/dnd`
+- **Backend:** Hono + TypeScript (Node.js runtime on local, Vercel Serverless in prod)
+- **DB & ORM:** Neon (serverless Postgres) + Drizzle ORM
+- **Auth:** Better Auth (session cookie-based authentication)
+- **Deploy:** Vercel (two separate Vercel projects: `offerly-job-tracker` frontend and `offerly-server` backend)
 
-## Repo structure
+## Directory Structure
+
 ```
+
 offerly/
-├── client/          # Vite React app
+├── client/                      # Vite React frontend
 │   └── src/
-│       ├── api/applications.ts       # all fetch calls, credentials: 'include' required
-│       ├── lib/auth-client.ts        # Better Auth client
-│       ├── lib/theme.ts              # dark mode helper
-│       ├── components/               # ApplicationCard, StatusUpdater, StatsBar, FilterBar,
-│       │                               NoteForm, DocumentForm, FollowUpPicker, ThemeToggle,
-│       │                               ProtectedRoute, layout/AppShell
-│       ├── pages/                    # Dashboard, ApplicationDetail, NewApplication,
-│       │                               Login, Signup, Analytics
-│       └── types/application.ts
-├── server/
-│   ├── api/index.ts                  # Vercel entry — MUST be plain `export default app`,
-│   │                                    NOT wrapped in handle() — see Known Issues
-│   ├── vercel.json                   # NOT currently present — removed, zero-config used instead
-│   └── src/
-│       ├── app.ts                    # Hono app, all routes mounted, CORS, auth handler
-│       ├── index.ts                  # local dev entry only (calls serve())
-│       ├── types.ts                  # Hono Variables type (user on context)
-│       ├── lib/auth.ts               # Better Auth config
-│       ├── middleware/auth.ts        # requireAuth middleware
-│       ├── db/schema.ts              # Drizzle schema — applications, status_history, notes,
-│       │                               documents, user, session, account, verification
-│       ├── db/index.ts               # Drizzle + Neon connection
-│       └── routes/                   # applications.ts, notes.ts, documents.ts, analytics.ts
+│       ├── api/
+│       │   ├── applications.ts  # Application API client (credentials: 'include')
+│       │   ├── notes.ts         # Notes API endpoints
+│       │   ├── documents.ts     # External document links API endpoints
+│       │   └── analytics.ts     # Analytics API client
+│       ├── lib/
+│       │   ├── auth-client.ts   # Better Auth client instance
+│       │   └── theme.ts         # Theme/dark mode toggle manager
+│       ├── components/          # ApplicationCard, StatusUpdater, StatsBar, FilterBar,
+│       │                        # KanbanBoard, NoteForm, DocumentForm, FollowUpPicker,
+│       │                        # ThemeToggle, ProtectedRoute, layout/AppShell
+│       ├── pages/               # Dashboard, ApplicationDetail, NewApplication,
+│       │                        # Login, Signup, Analytics
+│       └── types/               # TypeScript interfaces (application.ts, analytics.ts, etc.)
+└── server/                      # Hono backend API
+├── api/
+│   └── index.ts             # Vercel entry point — plain `export default app`
+└── src/
+├── app.ts               # Hono setup, route mounting, CORS, Better Auth handler
+├── index.ts             # Local development entry point
+├── types.ts             # Context type extensions (user context)
+├── lib/
+│   └── auth.ts          # Better Auth initialization & database binding
+├── middleware/
+│   └── auth.ts          # Session authentication guard
+├── db/
+│   ├── schema.ts        # Drizzle schema (applications, status_history, notes, documents, auth)
+│   └── index.ts         # Neon Postgres connection client
+└── routes/              # applications.ts, notes.ts, documents.ts, analytics.ts
+
 ```
 
-## Deployed URLs
-- Frontend: https://offerly-job-tracker.vercel.app
-- Backend: https://offerly-server.vercel.app
-- These are TWO SEPARATE Vercel projects, not subdomains of one project — cross-domain, not same-site.
+## Deployed Environments
+- **Frontend:** `https://offerly-job-tracker.vercel.app`
+- **Backend:** `https://offerly-server.vercel.app`
+- *Note:* Deployed as two distinct Vercel projects. Cross-domain CORS and cookie configuration apply.
 
-## Env vars
-**server/.env (local) + Vercel backend project env vars:**
-- `DATABASE_URL` — Neon connection string
-- `BETTER_AUTH_SECRET` — random 32-byte hex, same value local + prod
-- `BETTER_AUTH_URL` — backend's own URL (prod), unset/localhost for local dev
+## Environment Variables
+**Backend (`server/.env` / Vercel Backend Project):**
+- `DATABASE_URL` — Neon Postgres connection string
+- `BETTER_AUTH_SECRET` — 32-byte secret key for session signatures
+- `BETTER_AUTH_URL` — Backend public origin (production: `https://offerly-server.vercel.app`, dev: empty or `http://localhost:3000`)
 
-**client/.env / client/.env.production:**
-- `VITE_API_URL` — backend URL (local: http://localhost:3000, prod: https://offerly-server.vercel.app)
+**Frontend (`client/.env` / Vercel Frontend Project):**
+- `VITE_API_URL` — Backend API base URL (`http://localhost:3000` in dev, `https://offerly-server.vercel.app` in prod)
 
-## Known issues / hard-won fixes (don't redo this pain)
-1. **TypeScript 7.x has a compiler bug on Vercel builds** — "Cannot read properties of undefined (reading 'readFile')". Server pinned to `typescript: ^5.7.2` in devDependencies. Do not upgrade without testing a Vercel deploy first.
-2. **server/package.json has NO `build` script.** Do not add one. A `tsc` build step breaks Vercel's zero-config Hono detection (produces `.js` output missing `.js` extensions on relative imports → `ERR_MODULE_NOT_FOUND` / `ERR_UNSUPPORTED_DIR_IMPORT` at runtime).
-3. **server/api/index.ts must be a plain Hono export**, not wrapped in `handle()` from `hono/vercel`:
+## Critical Build & Configuration Constraints
+
+1. **TypeScript Version Pinning:** Server is pinned to `typescript: ^5.7.2` in `devDependencies`. Upgrading to TypeScript 7.x causes Vercel build container failures (`Cannot read properties of undefined (reading 'readFile')`).
+2. **No `build` script in `server/package.json`:** Vercel uses zero-config Hono detection. Running `tsc` outputs `.js` files that omit explicit `.js` extensions on relative imports, triggering `ERR_MODULE_NOT_FOUND` / `ERR_UNSUPPORTED_DIR_IMPORT` at runtime.
+3. **Plain Export for `server/api/index.ts`:**
    ```ts
    import app from '../src/app.js'
    export default app
-   ```
-   Vercel's official zero-config Hono support auto-detects this shape. The `handle()` adapter caused Edge/Node runtime signature mismatches (function hangs, times out at 504) when tried.
-4. **All relative imports in server/src/** use explicit `.js` extensions (e.g. `from './lib/auth.js'`) even though source files are `.ts`. Required for Node ESM resolution in the deployed function. Directory imports (`from '../db'`) must point at `index.js` explicitly (`from '../db/index.js'`) — Node doesn't resolve directory imports automatically.
-5. **Cross-domain cookies**: frontend and backend are different domains (not subdomains), so Better Auth cookies need `sameSite: 'none', secure: true, partitioned: true` in production, but `lax`/non-secure for local http dev. Handled via `NODE_ENV` check in `server/src/lib/auth.ts`. If auth session stops persisting after login, check this first.
-6. CORS `origin` list and Better Auth `trustedOrigins` must both list the exact frontend URL (no trailing slash, exact scheme). Both live in `server/src/app.ts` and `server/src/lib/auth.ts`.
 
-## Data model notes
-- `applications.userId` scopes every row to its owner. Every query in `routes/applications.ts` filters by `userId` — this is the actual multi-tenancy boundary.
-- `notes`/`documents` are scoped only via their parent `applicationId`, not independently re-checked against `userId` in those routes — acceptable simplification for portfolio scope, flagged as a known gap (not hardened against someone guessing another user's `applicationId` directly against notes/documents endpoints).
-- `status_history` logs every transition with timestamp — this is what powers the Analytics page (avg days per stage = time between consecutive history entries; current/ongoing stage excluded from averages since it has no end time).
+```
 
-## Design system
-Palette: `#F0EFEC` (cream), `#FAF9F6` (offwhite), `#152536` (navy), `#808080` (gray), `#DF864B` (terracotta accent). Dark mode via CSS custom properties + `.dark` class on `<html>`, toggled/persisted via `client/src/lib/theme.ts` + localStorage. Fonts: Space Grotesk (display), Inter (body), JetBrains Mono (status log timestamps), Playfair Display italic (personalized greeting name on Dashboard).
+Do not wrap with `handle()` from `hono/vercel`.
+4. **Explicit `.js` Relative Imports:** All relative imports in `server/src/` must specify explicit `.js` extensions (e.g., `from './lib/auth.js'`). Directory index files must be imported directly (`from '../db/index.js'`).
+5. **Cross-Domain Session Cookies:** Better Auth cookies require `sameSite: 'none'`, `secure: true`, and `partitioned: true` in production environments, but `lax` / non-secure settings for local HTTP development. Handled via environment toggles in `server/src/lib/auth.ts`.
+6. **Explicit Origin Matching:** Both CORS (`app.ts`) and `trustedOrigins` (`lib/auth.ts`) must explicitly list the frontend origin URL without trailing slashes.
 
-## Features implemented
-Full CRUD applications, status pipeline with history log, notes, documents (external URL links), filtering + sorting on dashboard, custom status dropdown UI, auth (signup/login/logout, protected routes), follow-up date/time reminders (manual + auto-stale-after-7-days flag), dark mode, stage-duration analytics page, kanban board (drag-and-drop status columns), search by company/role text
+## Data Model & Multi-Tenancy
 
-## Not yet built (from original roadmap)
-- Responsive/mobile layout check — never verified
-- README is stale — written before auth, filtering, documents, dark mode, analytics existed
+* **`applications.userId`:** Primary multi-tenancy boundary. Every query in `routes/applications.ts` enforces `eq(applications.userId, user.id)`.
+* **`status_history`:** Appends an entry on every status transition with a timestamp. Powers stage-duration metrics in the Analytics service (calculates time elapsed between consecutive stage logs; ongoing stages are excluded from completed averages).
+* **`notes` & `documents`:** Linked to parent `applicationId`.
 
-## Suggested next steps
-1. Test analytics with real data (move an app through 2-3 statuses with time gaps)
-2. Responsive check
-3. README rewrite to match current feature set
-4. Consider hardening notes/documents routes with userId check (see Data model notes)
+## Implemented Features
+
+* Full CRUD for job applications with search, filtering, and custom sorting
+* Interactive Kanban Board (`@hello-pangea/dnd`)
+* Multi-user authentication via Better Auth (Signup, Login, Protected Routes)
+* Immutable timestamped status transition logs
+* Attached notes and external URL document links
+* Geographic routing distance calculation using Nominatim geocoding and OSRM driving distance
+* Follow-up date scheduling with stale status flags
+* Stage-duration analytics calculation engine and UI
+* Custom CSS variable-based dark/light theme switching
+
+## Open Hardening / Next Engineering Steps
+
+1. **Cascade Verification on Sub-Resources:** Harden `notes` and `documents` routes by verifying parent application ownership (`userId`) prior to executing mutations.
+2. **Mobile Layout Polishing:** Further optimize Kanban and analytics table views for smaller mobile viewports.
+
