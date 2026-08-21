@@ -2,6 +2,21 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { createApplication } from '../api/applications.ts'
 
+// Helper function: Haversine distance in kilometers
+function calculateHaversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371 // Radius of Earth in km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180
+  const dLon = ((lon2 - lon1) * Math.PI) / 180
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  return Math.round(R * c * 10) / 10
+}
+
 export default function NewApplication() {
   const navigate = useNavigate()
   const [company, setCompany] = useState('')
@@ -13,6 +28,65 @@ export default function NewApplication() {
   const [workModel, setWorkModel] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Geolocation states
+  const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(null)
+  const [locatingUser, setLocatingUser] = useState(false)
+  const [calculatingDistance, setCalculatingDistance] = useState(false)
+  const [geoStatus, setGeoStatus] = useState<string | null>(null)
+
+  // Fetch current user position
+  function handleGetLocation() {
+    if (!('geolocation' in navigator)) {
+      setGeoStatus('Geolocation is not supported by your browser.')
+      return
+    }
+
+    setLocatingUser(true)
+    setGeoStatus(null)
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude }
+        setUserCoords(coords)
+        setLocatingUser(false)
+        setGeoStatus('Location saved!')
+
+        if (location.trim()) {
+          computeDistance(coords, location.trim())
+        }
+      },
+      () => {
+        setLocatingUser(false)
+        setGeoStatus('Permission denied or position unavailable.')
+      },
+      { timeout: 10000 }
+    )
+  }
+
+  // Geocode location string and update distance
+  async function computeDistance(coords: { lat: number; lng: number }, destination: string) {
+    if (!destination) return
+    setCalculatingDistance(true)
+
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destination)}`
+      )
+      const data = await res.json()
+
+      if (data && data.length > 0) {
+        const targetLat = parseFloat(data[0].lat)
+        const targetLng = parseFloat(data[0].lon)
+        const dist = calculateHaversineDistance(coords.lat, coords.lng, targetLat, targetLng)
+        setDistanceKm(String(dist))
+      }
+    } catch {
+      // Graceful fallback to manual entry if geocoding fails
+    } finally {
+      setCalculatingDistance(false)
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -91,21 +165,37 @@ export default function NewApplication() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="location" className="block text-xs font-mono text-navy mb-1.5">
-                Location
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label htmlFor="location" className="block text-xs font-mono text-navy">
+                  Location
+                </label>
+                <button
+                  type="button"
+                  onClick={handleGetLocation}
+                  disabled={locatingUser}
+                  className="text-[10px] text-terracotta hover:underline disabled:opacity-50 cursor-pointer"
+                >
+                  {locatingUser ? 'Locating...' : '📍 Use my location'}
+                </button>
+              </div>
               <input
                 id="location"
                 className="w-full bg-cream border border-border rounded-lg px-3 py-2 text-sm text-navy placeholder:text-gray/60 focus:outline-none focus:border-terracotta transition-colors"
                 placeholder="e.g. Makati, Metro Manila"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
+                onBlur={() => {
+                  if (userCoords && location.trim()) {
+                    computeDistance(userCoords, location.trim())
+                  }
+                }}
               />
+              {geoStatus && <p className="text-[10px] text-gray mt-1">{geoStatus}</p>}
             </div>
 
             <div>
               <label htmlFor="distanceKm" className="block text-xs font-mono text-navy mb-1.5">
-                Distance (km)
+                Distance (km) {calculatingDistance && <span className="text-[10px] text-terracotta">(Calculating...)</span>}
               </label>
               <input
                 id="distanceKm"
