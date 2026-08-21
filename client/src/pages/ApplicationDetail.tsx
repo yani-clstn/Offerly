@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { getApplication, updateApplication } from '../api/applications'
+import { MapPin, Plus, Banknote, ExternalLink } from 'lucide-react'
 import StatusUpdater from '../components/StatusUpdater'
 import NoteForm from '../components/NoteForm'
 import DocumentForm from '../components/DocumentForm'
@@ -85,9 +86,19 @@ function SalaryEditor({
     return (
       <button
         onClick={() => setIsEditing(true)}
-        className="bg-cream border border-border px-2 py-0.5 rounded text-xs text-navy font-mono hover:border-terracotta transition-colors"
+        className="flex items-center gap-1.5 bg-cream border border-border px-2.5 py-1 rounded-lg text-xs text-navy font-mono hover:border-terracotta transition-colors"
       >
-        {salaryDisplay ? `💰 ${salaryDisplay}` : '➕ Add Salary'}
+        {salaryDisplay ? (
+          <>
+            <Banknote className="w-3.5 h-3.5 text-terracotta" />
+            <span>{salaryDisplay}</span>
+          </>
+        ) : (
+          <>
+            <Plus className="w-3.5 h-3.5 text-terracotta" />
+            <span>Add Salary</span>
+          </>
+        )}
       </button>
     )
   }
@@ -166,8 +177,13 @@ export default function ApplicationDetail() {
           <h1 className="font-display text-2xl text-navy">{application.company}</h1>
           <p className="text-sm text-gray mt-1 font-medium">{application.role}</p>
           
-          <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-gray">
-            {application.location && <span>📍 {application.location}</span>}
+          <div className="flex flex-wrap items-center gap-3 mt-3 text-xs text-gray">
+            {application.location && (
+              <span className="flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-terracotta" />
+                <span>{application.location}</span>
+              </span>
+            )}
             <SalaryEditor
               applicationId={application.id}
               salaryMin={application.salaryMin}
@@ -182,7 +198,8 @@ export default function ApplicationDetail() {
                 rel="noopener noreferrer"
                 className="text-terracotta hover:underline inline-flex items-center gap-1"
               >
-                Job listing &rarr;
+                <span>Job listing</span>
+                <ExternalLink className="w-3 h-3" />
               </a>
             )}
           </div>
