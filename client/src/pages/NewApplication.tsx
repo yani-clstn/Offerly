@@ -21,7 +21,6 @@ export default function NewApplication() {
         company: company.trim(),
         role: role.trim(),
         status: 'applied',
-        appliedAt: new Date().toISOString(),
         jobPostingUrl: jobPostingUrl.trim() || undefined,
         location: location.trim() || undefined,
       })
