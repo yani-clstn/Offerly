@@ -71,15 +71,15 @@ app.post('/', async (c) => {
       userId: user.id,
       company,
       role,
-      jobPostingUrl,
-      location,
-      distanceKm: distanceKm ? String(distanceKm) : undefined,
-      employmentType,
-      workModel,
-      salaryMin,
-      salaryMax,
-      source,
-      appliedAt: appliedAt ? new Date(appliedAt) : undefined,
+      jobPostingUrl: jobPostingUrl || null,
+      location: location || null,
+      distanceKm: distanceKm !== undefined && distanceKm !== null ? String(distanceKm) : null,
+      employmentType: employmentType || null,
+      workModel: workModel || null,
+      salaryMin: salaryMin !== undefined && salaryMin !== null ? String(salaryMin) : null,
+      salaryMax: salaryMax !== undefined && salaryMax !== null ? String(salaryMax) : null,
+      source: source || null,
+      appliedAt: appliedAt ? new Date(appliedAt) : null,
       status: initialStatus,
     })
     .returning()
@@ -98,16 +98,39 @@ app.patch('/:id', async (c) => {
   const id = Number(c.req.param('id'))
   const body = await c.req.json()
 
-  const updateData = {
-    ...body,
-    ...(body.distanceKm !== undefined && {
-      distanceKm: body.distanceKm !== null ? String(body.distanceKm) : null,
-    }),
+  const {
+    company,
+    role,
+    jobPostingUrl,
+    location,
+    distanceKm,
+    employmentType,
+    workModel,
+    salaryMin,
+    salaryMax,
+    source,
+    appliedAt,
+    followUpDate,
+    status,
+  } = body
+
+  const updateData: Record<string, any> = {
     updatedAt: new Date(),
-    ...(body.followUpDate !== undefined && {
-      followUpDate: body.followUpDate ? new Date(body.followUpDate) : null,
-    }),
   }
+
+  if (company !== undefined) updateData.company = company
+  if (role !== undefined) updateData.role = role
+  if (jobPostingUrl !== undefined) updateData.jobPostingUrl = jobPostingUrl
+  if (location !== undefined) updateData.location = location
+  if (distanceKm !== undefined) updateData.distanceKm = distanceKm !== null ? String(distanceKm) : null
+  if (employmentType !== undefined) updateData.employmentType = employmentType
+  if (workModel !== undefined) updateData.workModel = workModel
+  if (salaryMin !== undefined) updateData.salaryMin = salaryMin !== null ? String(salaryMin) : null
+  if (salaryMax !== undefined) updateData.salaryMax = salaryMax !== null ? String(salaryMax) : null
+  if (source !== undefined) updateData.source = source
+  if (status !== undefined) updateData.status = status
+  if (appliedAt !== undefined) updateData.appliedAt = appliedAt ? new Date(appliedAt) : null
+  if (followUpDate !== undefined) updateData.followUpDate = followUpDate ? new Date(followUpDate) : null
 
   const [updated] = await db
     .update(applications)

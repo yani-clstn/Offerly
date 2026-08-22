@@ -23,7 +23,7 @@ app.get('/stage-durations', async (c) => {
     for (let i = 0; i < history.length; i++) {
       const current = history[i]
       const next = history[i + 1]
-      if (!next) continue // skip the current/ongoing stage — only count completed transitions
+      if (!next) continue // Skip ongoing stage — only count completed transitions
 
       const durationMs = new Date(next.changedAt).getTime() - new Date(current.changedAt).getTime()
       const durationDays = durationMs / (1000 * 60 * 60 * 24)
@@ -35,7 +35,7 @@ app.get('/stage-durations', async (c) => {
 
   const result = Object.entries(durationsByStatus).map(([status, durations]) => ({
     status,
-    avgDays: durations.reduce((sum, d) => sum + d, 0) / durations.length,
+    avgDays: Math.round((durations.reduce((sum, d) => sum + d, 0) / durations.length) * 10) / 10,
     count: durations.length,
   }))
 
@@ -58,9 +58,15 @@ app.get('/location', async (c) => {
     .where(and(eq(applications.userId, user.id), isNotNull(applications.distanceKm)))
     .orderBy(asc(applications.distanceKm))
 
-  const nearestJob = locatedApps.length > 0 ? locatedApps[0] : null
+  const rawNearest = locatedApps.length > 0 ? locatedApps[0] : null
   
-  // Safely parse distanceKm to number and pass 0 as initial value
+  const nearestJob = rawNearest
+    ? {
+        ...rawNearest,
+        distanceKm: rawNearest.distanceKm !== null ? Number(rawNearest.distanceKm) : null,
+      }
+    : null
+
   const totalDistance = locatedApps.reduce((sum, app) => {
     const dist = app.distanceKm ? Number(app.distanceKm) : 0
     return sum + dist

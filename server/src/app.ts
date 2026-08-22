@@ -21,10 +21,16 @@ app.on(['POST', 'GET'], '/api/auth/*', (c) => {
 
 app.get('/api/health', (c) => c.json({ status: 'ok' }))
 
+// Apply auth middleware to all protected routes
 app.use('/api/applications/*', requireAuth)
+app.use('/api/analytics/*', requireAuth)
+
+// Mount application sub-routes
 app.route('/api/applications', applications)
 app.route('/api/applications', notes)
 app.route('/api/applications', documents)
-app.route('/api/applications', analytics)
+
+// Mount analytics router under /api/analytics
+app.route('/api/analytics', analytics)
 
 export default app
