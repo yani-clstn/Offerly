@@ -12,36 +12,30 @@ Tracking job applications across spreadsheets often leads to untracked follow-up
 
 ## Features
 
-- **Multi-Tenant Authentication** — Secure user registration and login with session management, ensuring complete data isolation per user.
-- **Status Pipeline & History** — Track applications across statuses (`wishlist` → `applied` → `phone_screen` → `interview` → `offer` → `accepted` / `rejected` / `withdrawn`). Every status transition creates an immutable, timestamped record.
-- **Interactive Kanban Board** — Drag-and-drop support across status columns for fast pipeline updates.
-- **Filtering, Sorting & Text Search** — Instant client-side text searching (by company or role), multi-attribute filtering, and custom sorting.
-- **Notes & External Documents** — Attach timestamped notes and link external documents (e.g., Google Drive links for tailored resumes or cover letters).
-- **Follow-Up Reminders** — Set follow-up timestamps with automated flags for stale applications lacking recent activity.
-- **Stage-Duration Analytics** — Visual analytics calculating average days spent in each pipeline stage based on historical transition timestamps.
-- **Location & Distance Calculation** — Geocoding and road-distance calculations using OpenStreetMap (Nominatim) and OSRM to track job location distance in kilometers.
-- **Dark Mode Support** — Theme-aware interface with persistent dark/light mode toggle.
-
----
+- **Status pipeline** — track applications through `wishlist → applied → phone screen → interview → offer → accepted / rejected / withdrawn`
+- **Status history timeline** — every status change is logged with a timestamp, not just overwritten, so you can see the full journey of each application.
+- **Notes** — attach multiple timestamped notes to any application (interview prep, follow-up thoughts, etc.)
+- **Document tracking** — link resume/cover letter versions (as external URLs, e.g. Google Drive) to specific applications
+- **Filtering & search** *(in progress)*
+- **Kanban board view** - drag and drop existing applications
 
 ## Tech Stack
 
-### Frontend
-- **Framework:** React 18+ with TypeScript
-- **Build Tool:** Vite
-- **Routing:** React Router DOM (`react-router-dom`)
-- **Styling:** Tailwind CSS v4 with custom CSS variable tokens (`--cream`, `--offwhite`, `--navy`, `--terracotta`, `--border`) supporting theme toggling
-- **Drag-and-Drop:** `@hello-pangea/dnd`
-- **Deployment:** Vercel
+**Frontend**
+- Framework: React 18+ with TypeScript
+- Routing: React Router (react-router-dom)
+- Styling & Design System: Tailwind CSS with custom CSS variables (--cream, --offwhite, --navy, --terracotta, --border) supporting theme-aware light/dark modes
+- Drag-and-Drop: @hello-pangea/dnd (for interactive Kanban board column updates)
+- Build Tool & Hosting: Vite, deployed on Vercel
 
-### Backend
-- **Framework:** Hono (Node.js / Edge-ready TypeScript API)
-- **Database & ORM:** PostgreSQL on Neon managed via Drizzle ORM
-- **Authentication:** Better Auth (session-based authentication with scoped database queries)
-- **Geocoding & Routing APIs:** OpenStreetMap (Nominatim) & OSRM (Open Source Routing Machine)
-- **Deployment:** Vercel (Serverless Functions)
+**Backend**
+- Server Framework: Hono (Node.js / Edge-ready TypeScript API)
+- Database & ORM: PostgreSQL hosted on Neon, managed via Drizzle ORM
+- Authentication: Better Auth (session-based authentication with scoped database queries)
 
----
+**Development & Tooling**
+- Type Safety: Full-stack TypeScript (strict mode enabled with verbatimModuleSyntax)
+- Version Control: Git & GitHub (feature-branch deployment workflow)
 
 ## Database Schema
 
