@@ -18,21 +18,21 @@ export const ApplicationGrid: React.FC<ApplicationGridProps> = ({
       {applications.map((app) => (
         <div
           key={app.id}
-          className="group relative flex flex-col justify-between p-4 bg-[#141824] text-white rounded-2xl border border-slate-800/80 shadow-xs hover:border-slate-700 transition-all duration-200"
+          className="group relative flex flex-col justify-between p-4 bg-white dark:bg-[#141824] text-slate-800 dark:text-white rounded-2xl border border-slate-200 dark:border-slate-800/80 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200"
         >
           {/* Top Section: Company, Role & Quick Action Icons */}
           <div>
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-base text-slate-100 truncate">
+                  <h3 className="font-semibold text-base text-slate-900 dark:text-slate-100 truncate">
                     {app.company}
                   </h3>
                   {app.isPinned && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 dark:bg-amber-400 shrink-0" />
                   )}
                 </div>
-                <p className="text-sm text-slate-400 truncate mt-0.5">
+                <p className="text-sm text-slate-500 dark:text-slate-400 truncate mt-0.5">
                   {app.role}
                 </p>
               </div>
@@ -44,8 +44,8 @@ export const ApplicationGrid: React.FC<ApplicationGridProps> = ({
                   onClick={() => onTogglePin(app.id, !!app.isPinned)}
                   className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                     app.isPinned
-                      ? 'text-amber-400 bg-amber-400/10'
-                      : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/50'
+                      ? 'text-amber-500 dark:text-amber-400 bg-amber-50 dark:bg-amber-400/10'
+                      : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/50'
                   }`}
                   title={app.isPinned ? 'Unpin application' : 'Pin application'}
                   aria-label={app.isPinned ? 'Unpin application' : 'Pin application'}
@@ -56,7 +56,7 @@ export const ApplicationGrid: React.FC<ApplicationGridProps> = ({
                 <button
                   type="button"
                   onClick={() => onEdit(app)}
-                  className="p-1.5 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-slate-800/50 transition-colors cursor-pointer"
+                  className="p-1.5 rounded-lg text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors cursor-pointer"
                   title="Edit application"
                   aria-label="Edit application"
                 >
@@ -69,25 +69,25 @@ export const ApplicationGrid: React.FC<ApplicationGridProps> = ({
             {(app.location || app.distanceKm !== undefined || app.workModel || app.employmentType) && (
               <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
                 {(app.location || app.distanceKm !== undefined) && (
-                  <span className="inline-flex items-center gap-1.5 bg-[#1e2536] border border-slate-800 text-slate-300 px-2.5 py-1 rounded-md font-medium">
-                    <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
+                  <span className="inline-flex items-center gap-1.5 bg-slate-100 dark:bg-[#1e2536] border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 px-2.5 py-1 rounded-md font-medium">
+                    <MapPin className="w-3 h-3 text-slate-400 dark:text-slate-400 shrink-0" />
                     <span className="truncate">
                       {app.location}
                       {app.distanceKm !== undefined && app.distanceKm !== null && (
-                        <span className="text-slate-400 ml-1">({app.distanceKm} km)</span>
+                        <span className="text-slate-500 dark:text-slate-400 ml-1">({app.distanceKm} km)</span>
                       )}
                     </span>
                   </span>
                 )}
 
                 {app.workModel && (
-                  <span className="bg-[#1e2536] border border-slate-800 text-slate-300 px-2 py-1 rounded-md font-medium">
+                  <span className="bg-slate-100 dark:bg-[#1e2536] border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 px-2 py-1 rounded-md font-medium">
                     {app.workModel}
                   </span>
                 )}
 
                 {app.employmentType && (
-                  <span className="bg-[#1e2536] border border-slate-800 text-slate-300 px-2 py-1 rounded-md font-medium">
+                  <span className="bg-slate-100 dark:bg-[#1e2536] border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 px-2 py-1 rounded-md font-medium">
                     {app.employmentType}
                   </span>
                 )}
@@ -96,15 +96,15 @@ export const ApplicationGrid: React.FC<ApplicationGridProps> = ({
           </div>
 
           {/* Bottom Footer: Status Badge & Edit Action */}
-          <div className="mt-4 pt-3 border-t border-slate-800/60 flex items-center justify-between">
-            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#1e2536] border border-slate-700/60 text-slate-200 capitalize tracking-wide">
+          <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-between">
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-[#1e2536] border border-slate-200 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 capitalize tracking-wide">
               {app.status?.replace('_', ' ')}
             </span>
 
             <button
               type="button"
               onClick={() => onEdit(app)}
-              className="text-xs text-slate-400 hover:text-slate-100 font-medium transition-colors cursor-pointer"
+              className="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 font-medium transition-colors cursor-pointer"
             >
               Edit details
             </button>
