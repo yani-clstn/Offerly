@@ -1,4 +1,4 @@
-import { pgTable, serial, text, varchar, timestamp, pgEnum, integer, decimal, boolean, index } from 'drizzle-orm/pg-core'
+import { pgTable, serial, text, varchar, timestamp, pgEnum, integer, decimal, boolean, index, real } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 
 // ── Enums ──
@@ -27,9 +27,14 @@ export const applications = pgTable('applications', {
   role: varchar('role', { length: 255 }).notNull(),
   jobPostingUrl: text('job_posting_url'),
   location: varchar('location', { length: 255 }),
+  distanceKm: real('distance_km'), // <-- New column
   workType: workTypeEnum('work_type'),
+  workModel: text('work_model'), // <-- Preserved column
+  employmentType: text('employment_type'), // <-- Preserved column
   salaryMin: decimal('salary_min', { precision: 10, scale: 2 }),
   salaryMax: decimal('salary_max', { precision: 10, scale: 2 }),
+  salaryPeriod: text('salary_period'), // <-- Preserved column
+  currency: text('currency'), // <-- Preserved column
   status: statusEnum('status').notNull().default('wishlist'),
   source: varchar('source', { length: 100 }),
   appliedAt: timestamp('applied_at'),
