@@ -51,15 +51,21 @@ app.get('/location', async (c) => {
       company: applications.company,
       role: applications.role,
       location: applications.location,
-      distanceKm: applications.distanceKm, // <-- Updated from applications.distance
+      distanceKm: applications.distanceKm,
       status: applications.status,
     })
     .from(applications)
-    .where(and(eq(applications.userId, user.id), isNotNull(applications.distanceKm))) // <-- Updated
-    .orderBy(asc(applications.distanceKm)) // <-- Updated
+    .where(and(eq(applications.userId, user.id), isNotNull(applications.distanceKm)))
+    .orderBy(asc(applications.distanceKm))
 
   const nearestJob = locatedApps.length > 0 ? locatedApps[0] : null
-  const totalDistance = locatedApps.reduce((sum: number, app: { distanceKm: number | null }) => sum + (app.distanceKm || 0), 0)
+  
+  // Safely parse distanceKm to number and pass 0 as initial value
+  const totalDistance = locatedApps.reduce((sum, app) => {
+    const dist = app.distanceKm ? Number(app.distanceKm) : 0
+    return sum + dist
+  }, 0)
+
   const avgDistance = locatedApps.length > 0 ? Math.round((totalDistance / locatedApps.length) * 10) / 10 : 0
 
   return c.json({
