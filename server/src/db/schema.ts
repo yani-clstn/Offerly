@@ -1,4 +1,4 @@
-import { pgTable, serial, text, varchar, timestamp, pgEnum, integer, decimal, boolean, index, real } from 'drizzle-orm/pg-core'
+import { pgTable, serial, text, varchar, timestamp, pgEnum, numeric, integer, decimal, boolean, index, real } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 
 // ── Enums ──
@@ -49,6 +49,9 @@ export const applications = pgTable('applications', {
   salaryPeriod: salaryPeriodEnum('salary_period').default('yearly'),
   currency: varchar('currency', { length: 10 }).default('USD'),
   status: statusEnum('status').notNull().default('wishlist'),
+  isArchived: boolean('is_archived').notNull().default(false),
+  isPinned: boolean('is_pinned').notNull().default(false),
+  displayOrder: integer('display_order').notNull().default(0),
   source: varchar('source', { length: 100 }),
   appliedAt: timestamp('applied_at'),
   followUpDate: timestamp('follow_up_date'),
@@ -65,6 +68,31 @@ export const statusHistory = pgTable('status_history', {
   status: statusEnum('status').notNull(),
   note: text('note'),
   changedAt: timestamp('changed_at').notNull().defaultNow(),
+})
+
+//Interview Schedule Table
+export const interviews = pgTable('interviews', {
+  id: serial('id').primaryKey(),
+  applicationId: integer('application_id').notNull().references(() => applications.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(), // e.g., "Technical Screening", "System Design Round"
+  interviewDate: timestamp('interview_date').notNull(),
+  locationOrLink: text('location_or_link'),
+  notes: text('notes'),
+  reminderSent: boolean('reminder_sent').default(false),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+})
+
+// Job History & Past Experiences Table
+export const workExperiences = pgTable('work_experiences', {
+  id: serial('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  company: text('company').notNull(),
+  role: text('role').notNull(),
+  employmentType: text('employment_type'),
+  startDate: timestamp('start_date').notNull(),
+  endDate: timestamp('end_date'), // Null if current job
+  description: text('description'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
 })
 
 // ── Notes ──
@@ -103,6 +131,13 @@ export const applicationsRelations = relations(applications, ({ many, one }) => 
 export const statusHistoryRelations = relations(statusHistory, ({ one }) => ({
   application: one(applications, {
     fields: [statusHistory.applicationId],
+    references: [applications.id],
+  }),
+}))
+
+export const interviewsRelations = relations(interviews, ({ one }) => ({
+  application: one(applications, {
+    fields: [interviews.applicationId],
     references: [applications.id],
   }),
 }))

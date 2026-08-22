@@ -1,19 +1,41 @@
 import { Hono } from 'hono'
 import { db } from '../db/index.js'
 import { applications, statusHistory } from '../db/schema.js'
-import { eq, desc, and } from 'drizzle-orm'
+import { eq, desc, and, ilike, or, asc } from 'drizzle-orm'
 import type { Variables } from '../types.js'
 
 const app = new Hono<{ Variables: Variables }>()
 
-// GET /api/applications — list all applications for the logged-in user
+// GET /api/applications — list applications (supports ?q=search and ?archived=true/false)
 app.get('/', async (c) => {
   const user = c.get('user')
+  const search = c.req.query('q')
+  const archived = c.req.query('archived') === 'true'
+
+  const conditions = [
+    eq(applications.userId, user.id),
+    eq(applications.isArchived, archived),
+  ]
+
+  if (search) {
+    conditions.push(
+      or(
+        ilike(applications.company, `%${search}%`),
+        ilike(applications.role, `%${search}%`),
+        ilike(applications.location, `%${search}%`)
+      )!
+    )
+  }
+
   const allApplications = await db
     .select()
     .from(applications)
-    .where(eq(applications.userId, user.id))
-    .orderBy(desc(applications.createdAt))
+    .where(and(...conditions))
+    .orderBy(
+      desc(applications.isPinned),
+      asc(applications.displayOrder),
+      desc(applications.createdAt)
+    )
 
   return c.json(allApplications)
 })
@@ -57,6 +79,8 @@ app.post('/', async (c) => {
     source,
     appliedAt,
     status,
+    isPinned,
+    displayOrder,
   } = body
 
   if (!company || !role) {
@@ -81,6 +105,8 @@ app.post('/', async (c) => {
       source: source || null,
       appliedAt: appliedAt ? new Date(appliedAt) : null,
       status: initialStatus,
+      isPinned: isPinned ?? false,
+      displayOrder: displayOrder ?? 0,
     })
     .returning()
 
@@ -90,6 +116,29 @@ app.post('/', async (c) => {
   })
 
   return c.json(newApplication, 201)
+})
+
+// PATCH /api/applications/reorder — batch update pinned & display order
+app.patch('/reorder', async (c) => {
+  const user = c.get('user')
+  const { items } = await c.req.json<{ items: { id: number; displayOrder: number; isPinned?: boolean }[] }>()
+
+  if (!Array.isArray(items)) {
+    return c.json({ error: 'items array is required' }, 400)
+  }
+
+  for (const item of items) {
+    await db
+      .update(applications)
+      .set({
+        displayOrder: item.displayOrder,
+        ...(item.isPinned !== undefined && { isPinned: item.isPinned }),
+        updatedAt: new Date(),
+      })
+      .where(and(eq(applications.id, item.id), eq(applications.userId, user.id)))
+  }
+
+  return c.json({ message: 'Order updated successfully' })
 })
 
 // PATCH /api/applications/:id — update application fields
@@ -112,6 +161,9 @@ app.patch('/:id', async (c) => {
     appliedAt,
     followUpDate,
     status,
+    isArchived,
+    isPinned,
+    displayOrder,
   } = body
 
   const updateData: Record<string, any> = {
@@ -129,6 +181,9 @@ app.patch('/:id', async (c) => {
   if (salaryMax !== undefined) updateData.salaryMax = salaryMax !== null ? String(salaryMax) : null
   if (source !== undefined) updateData.source = source
   if (status !== undefined) updateData.status = status
+  if (isArchived !== undefined) updateData.isArchived = Boolean(isArchived)
+  if (isPinned !== undefined) updateData.isPinned = Boolean(isPinned)
+  if (displayOrder !== undefined) updateData.displayOrder = Number(displayOrder)
   if (appliedAt !== undefined) updateData.appliedAt = appliedAt ? new Date(appliedAt) : null
   if (followUpDate !== undefined) updateData.followUpDate = followUpDate ? new Date(followUpDate) : null
 
