@@ -37,6 +37,9 @@ export interface Application {
   salaryPeriod?: SalaryPeriod | null
   currency?: string | null
   status: ApplicationStatus
+  isPinned: boolean
+  displayOrder: number
+  isArchived: boolean
   source?: string | null
   appliedAt?: string | null
   followUpDate?: string | null

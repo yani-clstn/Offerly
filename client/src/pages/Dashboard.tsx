@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { getApplications } from '../api/applications'
+import { getApplications, updateApplication } from '../api/applications'
 import type { Application, Status } from '../types/application'
-import ApplicationCard from '../components/ApplicationCard'
+import { ApplicationGrid } from '../components/ApplicationGrid'
 import StatsBar from '../components/StatsBar'
 import FilterBar, { type SortOption } from '../components/FilterBar'
 import KanbanBoard from '../components/KanbanBoard'
@@ -25,6 +25,25 @@ export default function Dashboard() {
       .finally(() => setLoading(false))
   }, [])
 
+  const handleTogglePin = async (id: number, currentPinned: boolean) => {
+    try {
+      setApplications((prev) =>
+        prev.map((app) => (app.id === id ? { ...app, isPinned: !currentPinned } : app))
+      )
+      await updateApplication(id, { isPinned: !currentPinned })
+    } catch (err) {
+      // Rollback on failure
+      setApplications((prev) =>
+        prev.map((app) => (app.id === id ? { ...app, isPinned: currentPinned } : app))
+      )
+    }
+  }
+
+  const handleEdit = (app: Application) => {
+    // Open your edit modal/drawer here
+    console.log('Edit application:', app)
+  }
+
   const visibleApplications = useMemo(() => {
     let result = applications
 
@@ -33,6 +52,9 @@ export default function Dashboard() {
     }
 
     result = [...result].sort((a, b) => {
+      // Prioritize pinned applications at the top
+      if (a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1
+
       if (sortOption === 'company') return a.company.localeCompare(b.company)
       const diff = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
       return sortOption === 'newest' ? -diff : diff
@@ -117,11 +139,11 @@ export default function Dashboard() {
           {visibleApplications.length === 0 ? (
             <p className="text-gray text-sm">No applications match this filter.</p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {visibleApplications.map((app) => (
-                <ApplicationCard key={app.id} application={app} />
-              ))}
-            </div>
+            <ApplicationGrid
+              applications={visibleApplications}
+              onEdit={handleEdit}
+              onTogglePin={handleTogglePin}
+            />
           )}
         </>
       ) : (
