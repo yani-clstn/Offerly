@@ -72,8 +72,6 @@ offerly/
    import app from '../src/app.js'
    export default app
 
-```
-
 Do not wrap with `handle()` from `hono/vercel`.
 4. **Explicit `.js` Relative Imports:** All relative imports in `server/src/` must specify explicit `.js` extensions (e.g., `from './lib/auth.js'`). Directory index files must be imported directly (`from '../db/index.js'`).
 5. **Cross-Domain Session Cookies:** Better Auth cookies require `sameSite: 'none'`, `secure: true`, and `partitioned: true` in production environments, but `lax` / non-secure settings for local HTTP development. Handled via environment toggles in `server/src/lib/auth.ts`.
