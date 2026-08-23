@@ -44,7 +44,7 @@ export const ApplicationGrid: React.FC<ApplicationGridProps> = ({
                   onClick={() => onTogglePin(app.id, !!app.isPinned)}
                   className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                     app.isPinned
-                      ? 'text-amber-500 dark:text-amber-400 bg-amber-50 dark:bg-amber-400/10'
+                      ? 'text-terracotta bg-terracotta/15 dark:bg-terracotta/20'
                       : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/50'
                   }`}
                   title={app.isPinned ? 'Unpin application' : 'Pin application'}
