@@ -7,15 +7,16 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
- "scripts": {
-  "dev": "tsx watch src/index.ts",
-  "db:generate": "drizzle-kit generate",
-  "db:push": "drizzle-kit push",
-  "db:studio": "drizzle-kit studio"
-},
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
+  },
   "dependencies": {
     "@hono/node-server": "^2.0.12",
     "@neondatabase/serverless": "^1.1.0",
+    "@supabase/supabase-js": "^2.115.0",
     "better-auth": "^1.6.26",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",

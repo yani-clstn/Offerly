@@ -91,3 +91,25 @@ export async function getStageDurations(): Promise<StageDuration[]> {
   if (!res.ok) throw new Error('Failed to fetch analytics')
   return res.json()
 }
+
+export async function uploadDocument(applicationId: number, file: File, type: string, label: string) {
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('type', type)
+  formData.append('label', label)
+
+  const res = await fetch(`${BASE_URL}/${applicationId}/documents/upload`, {
+    method: 'POST',
+    credentials: 'include',
+    body: formData, // no Content-Type header — browser sets multipart boundary itself
+  })
+  if (!res.ok) throw new Error('Failed to upload document')
+  return res.json()
+}
+
+export async function getDocumentDownloadUrl(id: number): Promise<string> {
+  const res = await fetch(`${BASE_URL}/documents/${id}/download`, { credentials: 'include' })
+  if (!res.ok) throw new Error('Failed to get download link')
+  const { url } = await res.json()
+  return url
+}

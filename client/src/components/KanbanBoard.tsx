@@ -58,7 +58,7 @@ export default function KanbanBoard({ applications, onStatusChange }: KanbanBoar
           return (
             <div
               key={col.id}
-              className="bg-offwhite border border-border rounded-xl p-3 flex flex-col min-h-[400px]"
+              className="bg-offwhite border border-border rounded-xl p-3 flex flex-col min-h-100"
             >
               <div className="flex items-center justify-between mb-3">
                 <p className="font-mono text-xs text-navy font-medium">{col.label}</p>
