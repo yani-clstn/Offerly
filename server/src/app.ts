@@ -14,10 +14,19 @@ import experiences from './routes/experiences.js'
 
 const app = new Hono<{ Variables: Variables }>()
 
-app.use('/api/*', cors({
-  origin: ['http://localhost:5173', 'https://offerly-job-tracker.vercel.app'],
-  credentials: true,
-}))
+// Ensure global CORS handling with proper methods and headers
+app.use(
+  '*',
+  cors({
+    origin: [
+      'http://localhost:5173',
+      'https://offerly-job-tracker.vercel.app',
+    ],
+    allowHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true,
+  })
+)
 
 app.on(['POST', 'GET'], '/api/auth/*', (c) => {
   return auth.handler(c.req.raw)
