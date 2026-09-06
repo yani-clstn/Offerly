@@ -1,84 +1,79 @@
-import { useState, useEffect } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import { signIn, useSession } from '../lib/auth-client'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { loginSchema, type LoginInput } from '../lib/auth-schemas'
+import { authClient } from '../lib/auth-client'
 
 export default function Login() {
-  const navigate = useNavigate()
-  const { data: session } = useSession()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [submitting, setSubmitting] = useState(false)
+  const [serverError, setServerError] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (session) navigate('/')
-  }, [session, navigate])
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: '', password: '' },
+  })
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setError('')
-    setSubmitting(true)
+  const onSubmit = async (data: LoginInput) => {
+    setServerError(null)
+    const { error } = await authClient.signIn.email({
+      email: data.email,
+      password: data.password,
+    })
 
-    const { error: signInError } = await signIn.email({ email, password })
-
-    if (signInError) {
-      setError(signInError.message || 'Failed to sign in')
-      setSubmitting(false)
-      return
+    if (error) {
+      setServerError(error.message || 'Invalid credentials')
     }
-
-    navigate('/')
   }
 
   return (
-    <div className="mt-20 max-w-sm mx-auto">
-      <div className="text-center mb-8">
-        <img src="/icons/Offerly.svg" alt="Offerly logo" className="w-10 h-10 mx-auto mb-3" />
-        <h1 className="font-display text-2xl text-navy mb-1">Welcome back</h1>
-        <p className="text-sm text-gray">Log in to your Offerly account.</p>
-      </div>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-[#0d1117] text-white p-4">
+      <div className="w-full max-full max-w-sm p-6 bg-[#141824] border border-slate-800 rounded-2xl shadow-lg">
+        <h2 className="text-xl font-bold text-center text-slate-100 mb-1">Welcome back</h2>
+        <p className="text-xs text-slate-400 text-center mb-6">Log in to your Offerly account.</p>
 
-      <div className="bg-offwhite border border-border rounded-2xl shadow-sm p-6">
-        <form onSubmit={handleSubmit} className="space-y-3">
+        {serverError && (
+          <div className="p-2.5 mb-4 text-xs text-terracotta bg-terracotta/10 border border-terracotta/20 rounded-lg">
+            {serverError}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="text-xs text-gray mb-1 block">Email</label>
+            <label className="block text-xs font-medium text-slate-300 mb-1">Email</label>
             <input
+              {...register('email')}
               type="email"
-              className="w-full bg-cream border border-border rounded-lg px-3 py-2.5 text-sm text-navy placeholder:text-gray focus:outline-none focus:ring-2 focus:ring-terracotta/40 focus:border-terracotta transition-all"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
+              className="w-full px-3 py-2 text-sm bg-[#1e2536] border border-slate-700/80 rounded-lg text-slate-100 focus:outline-none focus:border-terracotta"
             />
+            {errors.email && (
+              <p className="mt-1 text-xs text-terracotta">{errors.email.message}</p>
+            )}
           </div>
+
           <div>
-            <label className="text-xs text-gray mb-1 block">Password</label>
+            <label className="block text-xs font-medium text-slate-300 mb-1">Password</label>
             <input
+              {...register('password')}
               type="password"
-              className="w-full bg-cream border border-border rounded-lg px-3 py-2.5 text-sm text-navy placeholder:text-gray focus:outline-none focus:ring-2 focus:ring-terracotta/40 focus:border-terracotta transition-all"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
+              className="w-full px-3 py-2 text-sm bg-[#1e2536] border border-slate-700/80 rounded-lg text-slate-100 focus:outline-none focus:border-terracotta"
             />
+            {errors.password && (
+              <p className="mt-1 text-xs text-terracotta">{errors.password.message}</p>
+            )}
           </div>
-          {error && (
-            <p className="text-xs text-terracotta bg-terracotta/10 rounded-lg px-3 py-2">{error}</p>
-          )}
+
           <button
             type="submit"
-            disabled={submitting}
-            className="w-full bg-navy text-offwhite text-sm font-medium px-4 py-2.5 rounded-lg hover:bg-terracotta transition-colors disabled:opacity-50 mt-1"
+            disabled={isSubmitting}
+            className="w-full py-2 px-4 bg-terracotta hover:bg-terracotta/90 text-white font-medium text-sm rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
           >
-            {submitting ? 'Logging in...' : 'Log in'}
+            {isSubmitting ? 'Logging in...' : 'Log in'}
           </button>
         </form>
       </div>
-
-      <p className="text-xs text-gray mt-5 text-center">
-        Don't have an account?{' '}
-        <Link to="/signup" className="text-terracotta hover:underline font-medium">Sign up</Link>
-      </p>
     </div>
   )
 }
