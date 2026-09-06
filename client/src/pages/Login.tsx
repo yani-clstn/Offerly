@@ -1,83 +1,107 @@
-import { useState, useEffect } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import { signIn, useSession } from '../lib/auth-client'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Link } from 'react-router-dom'
+import { loginSchema, type LoginInput } from '../lib/auth-schemas'
+import { authClient } from '../lib/auth-client'
 
 export default function Login() {
-  const navigate = useNavigate()
-  const { data: session } = useSession()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [submitting, setSubmitting] = useState(false)
+  const [serverError, setServerError] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (session) navigate('/')
-  }, [session, navigate])
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: '', password: '' },
+  })
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setError('')
-    setSubmitting(true)
+  const onSubmit = async (data: LoginInput) => {
+    setServerError(null)
+    const { error } = await authClient.signIn.email({
+      email: data.email,
+      password: data.password,
+    })
 
-    const { error: signInError } = await signIn.email({ email, password })
-
-    if (signInError) {
-      setError(signInError.message || 'Failed to sign in')
-      setSubmitting(false)
-      return
+    if (error) {
+      setServerError(error.message || 'Invalid credentials')
     }
-
-    navigate('/')
   }
 
   return (
-    <div className="mt-20 max-w-sm mx-auto">
-      <div className="text-center mb-8">
-        <img src="/icons/Offerly.svg" alt="Offerly logo" className="w-10 h-10 mx-auto mb-3" />
-        <h1 className="font-display text-2xl text-navy mb-1">Welcome back</h1>
-        <p className="text-sm text-gray">Log in to your Offerly account.</p>
+    <div className="flex-1 flex flex-col items-center justify-center p-6">
+      {/* Logo Image from public directory */}
+      <div className="mb-4">
+        <img
+          src="/icons/Offerly.svg"
+          alt="Offerly Logo"
+          className="w-10 h-10 object-contain"
+        />
       </div>
 
-      <div className="bg-offwhite border border-border rounded-2xl shadow-sm p-6">
-        <form onSubmit={handleSubmit} className="space-y-3">
+      <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1">
+        Welcome back
+      </h1>
+      <p className="text-sm text-slate-600 dark:text-slate-400 mb-8">
+        Log in to your Offerly account.
+      </p>
+
+      {/* Form Card */}
+      <div className="w-full max-w-[420px] bg-white dark:bg-[#141a23] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-xl transition-colors">
+        {serverError && (
+          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-xs text-red-600 dark:text-red-400">
+            {serverError}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="text-xs text-gray mb-1 block">Email</label>
+            <label className="block text-xs text-slate-700 dark:text-slate-400 mb-1.5 font-medium">
+              Email
+            </label>
             <input
+              {...register('email')}
               type="email"
-              className="w-full bg-cream border border-border rounded-lg px-3 py-2.5 text-sm text-navy placeholder:text-gray focus:outline-none focus:ring-2 focus:ring-terracotta/40 focus:border-terracotta transition-all"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
+              placeholder="anc@gmail.com"
+              className="w-full bg-slate-50 dark:bg-[#0d121a] border border-slate-200 dark:border-slate-800 rounded-lg px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:outline-none focus:border-terracotta/80 focus:ring-1 focus:ring-terracotta/80 transition-colors"
             />
+            {errors.email && (
+              <p className="mt-1 text-xs text-terracotta">{errors.email.message}</p>
+            )}
           </div>
+
           <div>
-            <label className="text-xs text-gray mb-1 block">Password</label>
+            <label className="block text-xs text-slate-700 dark:text-slate-400 mb-1.5 font-medium">
+              Password
+            </label>
             <input
+              {...register('password')}
               type="password"
-              className="w-full bg-cream border border-border rounded-lg px-3 py-2.5 text-sm text-navy placeholder:text-gray focus:outline-none focus:ring-2 focus:ring-terracotta/40 focus:border-terracotta transition-all"
               placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
+              className="w-full bg-slate-50 dark:bg-[#0d121a] border border-slate-200 dark:border-slate-800 rounded-lg px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:outline-none focus:border-terracotta/80 focus:ring-1 focus:ring-terracotta/80 transition-colors"
             />
+            {errors.password && (
+              <p className="mt-1 text-xs text-terracotta">{errors.password.message}</p>
+            )}
           </div>
-          {error && (
-            <p className="text-xs text-terracotta bg-terracotta/10 rounded-lg px-3 py-2">{error}</p>
-          )}
+
           <button
             type="submit"
-            disabled={submitting}
-            className="w-full bg-navy text-offwhite text-sm font-medium px-4 py-2.5 rounded-lg hover:bg-terracotta transition-colors disabled:opacity-50 mt-1"
+            disabled={isSubmitting}
+            className="w-full mt-2 py-2.5 px-4 bg-slate-800 hover:bg-slate-900 dark:bg-[#7d8590] dark:hover:bg-[#8c94a0] disabled:opacity-50 text-white dark:text-slate-900 font-semibold text-sm rounded-lg transition-colors cursor-pointer"
           >
-            {submitting ? 'Logging in...' : 'Log in'}
+            {isSubmitting ? 'Logging in...' : 'Log in'}
           </button>
         </form>
       </div>
 
-      <p className="text-xs text-gray mt-5 text-center">
+      {/* Footer Link */}
+      <p className="mt-6 text-xs text-slate-600 dark:text-slate-400">
         Don't have an account?{' '}
-        <Link to="/signup" className="text-terracotta hover:underline font-medium">Sign up</Link>
+        <Link to="/signup" className="text-terracotta font-semibold hover:underline">
+          Sign up
+        </Link>
       </p>
     </div>
   )
