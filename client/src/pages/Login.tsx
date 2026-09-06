@@ -48,7 +48,7 @@ export default function Login() {
       </p>
 
       {/* Form Card */}
-      <div className="w-full max-w-[420px] bg-white dark:bg-[#141a23] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-xl transition-colors">
+      <div className="w-full max-w-105 bg-white dark:bg-[#141a23] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-xl transition-colors">
         {serverError && (
           <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-xs text-red-600 dark:text-red-400">
             {serverError}
@@ -63,7 +63,7 @@ export default function Login() {
             <input
               {...register('email')}
               type="email"
-              placeholder="anc@gmail.com"
+              placeholder="you@example.com"
               className="w-full bg-slate-50 dark:bg-[#0d121a] border border-slate-200 dark:border-slate-800 rounded-lg px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:outline-none focus:border-terracotta/80 focus:ring-1 focus:ring-terracotta/80 transition-colors"
             />
             {errors.email && (

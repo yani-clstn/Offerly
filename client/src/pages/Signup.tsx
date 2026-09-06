@@ -49,7 +49,7 @@ export default function Signup() {
       </p>
 
       {/* Form Card */}
-      <div className="w-full max-w-[420px] bg-white dark:bg-[#141a23] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-xl transition-colors">
+      <div className="w-full max-w-105 bg-white dark:bg-[#141a23] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-xl transition-colors">
         {serverError && (
           <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-xs text-red-600 dark:text-red-400">
             {serverError}
