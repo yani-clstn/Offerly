@@ -70,7 +70,7 @@ export const InterviewCalendar: React.FC<{ interviews: Interview[] }> = ({ inter
             </div>
           ))}
         </div>
-        <div className="grid grid-cols-7 gap-1 min-h-[320px]">
+        <div className="grid grid-cols-7 gap-1 min-h-80">
           {Array.from({ length: 35 }).map((_, idx) => {
             const dayNum = idx + 1
             const hasInterview = interviews.some(

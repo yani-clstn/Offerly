@@ -113,7 +113,8 @@ export const documents = pgTable('documents', {
     .references(() => applications.id, { onDelete: 'cascade' }),
   type: documentTypeEnum('type').notNull(),
   label: varchar('label', { length: 255 }).notNull(),
-  url: text('url').notNull(),
+  url: text('url'),
+  storagePath: text('storage_path'),
   uploadedAt: timestamp('uploaded_at').notNull().defaultNow(),
 })
 
