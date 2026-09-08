@@ -76,6 +76,9 @@ In `server/.env`:
 DATABASE_URL=postgres://user:password@endpoint.neon.tech/neondb?sslmode=require
 BETTER_AUTH_SECRET=your_32_byte_hex_secret
 BETTER_AUTH_URL=http://localhost:3000
+FRONTEND_ORIGIN=http://localhost:5173
+# Optional additional origins (comma-separated, no trailing slash)
+# FRONTEND_ORIGINS=https://offerly-job-tracker.vercel.app,https://offerly-job-tracker-git-feature-xyz.vercel.app
 
 ```
 
@@ -83,6 +86,9 @@ BETTER_AUTH_URL=http://localhost:3000
 In `client/.env`:
 ```env
 VITE_API_URL=http://localhost:3000
+
+# For production/preview on Vercel, set BETTER_AUTH_URL to the backend public URL
+# and include every frontend deployment origin in FRONTEND_ORIGIN/FRONTEND_ORIGINS.
 
 ```
 

@@ -14,16 +14,28 @@ import experiences from './routes/experiences.js'
 
 const app = new Hono<{ Variables: Variables }>()
 
+const normalizeOrigin = (value: string) => value.trim().replace(/\/+$/, '')
+
+const allowedOrigins = Array.from(
+  new Set(
+    [
+      'http://localhost:5173',
+      'https://offerly-job-tracker.vercel.app',
+      process.env.FRONTEND_ORIGIN,
+      ...(process.env.FRONTEND_ORIGINS?.split(',') ?? []),
+    ]
+      .filter((origin): origin is string => Boolean(origin))
+      .map(normalizeOrigin)
+  )
+)
+
 // Ensure global CORS handling with proper methods and headers
 app.use(
   '*',
   cors({
-    origin: [
-      'http://localhost:5173',
-      'https://offerly-job-tracker.vercel.app',
-    ],
+    origin: allowedOrigins,
     allowHeaders: ['Content-Type', 'Authorization', 'Cookie'],
-    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
     credentials: true,
   })
 )
