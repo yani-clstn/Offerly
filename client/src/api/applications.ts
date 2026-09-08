@@ -113,3 +113,21 @@ export async function getDocumentDownloadUrl(id: number): Promise<string> {
   const { url } = await res.json()
   return url
 }
+
+export interface MatchScoreResult {
+  score: number
+  matchingSkills: string[]
+  missingSkills: string[]
+  summary: string
+}
+
+export async function getMatchScore(applicationId: number, documentId: number, jobDescription: string): Promise<MatchScoreResult> {
+  const res = await fetch(`${BASE_URL}/${applicationId}/match-score`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ documentId, jobDescription }),
+  })
+  if (!res.ok) throw new Error('Failed to get match score')
+  return res.json()
+}
