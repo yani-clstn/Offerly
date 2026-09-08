@@ -5,7 +5,7 @@ import { eq, and } from 'drizzle-orm'
 import { r2, BUCKET } from '../lib/r2.js'
 import { GetObjectCommand } from '@aws-sdk/client-s3'
 import { gemini, matchScoreSchema } from '../lib/gemini.js'
-import { PDFParse } from 'pdf-parse'
+import pdfParse from 'pdf-parse'
 import type { Variables } from '../types.js'
 
 const app = new Hono<{ Variables: Variables }>()
@@ -30,10 +30,7 @@ app.post('/:applicationId/match-score', async (c) => {
   const obj = await r2.send(new GetObjectCommand({ Bucket: BUCKET, Key: doc.storagePath }))
   const buffer = Buffer.from(await obj.Body!.transformToByteArray())
 
-  const parser = new PDFParse({ data: buffer })
-  const parsed = await parser.getText()
-  await parser.destroy()
-  const resumeText = parsed.text
+  const { text: resumeText } = await pdfParse(buffer)
 
   const prompt = `Compare this resume against the job description. Give a fit score 0-100, list matching skills/keywords, missing skills/keywords the job wants but the resume lacks, and a short summary.
 
