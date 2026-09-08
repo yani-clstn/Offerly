@@ -2,12 +2,14 @@ import { Hono } from 'hono'
 import { db } from '../db/index.js'
 import { documents, applications } from '../db/schema.js'
 import { eq, and } from 'drizzle-orm'
-import { supabase } from '../lib/supabase.js'
+import { r2, BUCKET } from '../lib/r2.js'
+import { PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import type { Variables } from '../types.js'
 
 const app = new Hono<{ Variables: Variables }>()
 
-// existing: paste-a-link doc
+// paste-a-link doc
 app.post('/:applicationId/documents', async (c) => {
   const applicationId = Number(c.req.param('applicationId'))
   const { type, label, url } = await c.req.json()
@@ -24,12 +26,11 @@ app.post('/:applicationId/documents', async (c) => {
   return c.json(newDoc, 201)
 })
 
-// NEW: real file upload
+// real file upload
 app.post('/:applicationId/documents/upload', async (c) => {
   const user = c.get('user')
   const applicationId = Number(c.req.param('applicationId'))
 
-  // confirm this application belongs to the logged-in user
   const owned = await db.query.applications.findFirst({
     where: and(eq(applications.id, applicationId), eq(applications.userId, user.id)),
   })
@@ -54,11 +55,12 @@ app.post('/:applicationId/documents/upload', async (c) => {
   const path = `${user.id}/${applicationId}/${Date.now()}-${file.name}`
   const buffer = await file.arrayBuffer()
 
-  const { error: uploadError } = await supabase.storage
-    .from('documents')
-    .upload(path, buffer, { contentType: file.type })
-
-  if (uploadError) return c.json({ error: 'upload failed' }, 500)
+  await r2.send(new PutObjectCommand({
+    Bucket: BUCKET,
+    Key: path,
+    Body: new Uint8Array(buffer),
+    ContentType: file.type,
+  }))
 
   const [newDoc] = await db
     .insert(documents)
@@ -68,7 +70,7 @@ app.post('/:applicationId/documents/upload', async (c) => {
   return c.json(newDoc, 201)
 })
 
-// NEW: get a fresh signed URL to view/download a document
+// fresh signed URL to view/download
 app.get('/documents/:id/download', async (c) => {
   const user = c.get('user')
   const id = Number(c.req.param('id'))
@@ -81,17 +83,17 @@ app.get('/documents/:id/download', async (c) => {
   })
   if (!owned) return c.json({ error: 'Not found' }, 404)
 
-  if (doc.url) return c.json({ url: doc.url }) // external link doc
+  if (doc.url) return c.json({ url: doc.url })
 
   if (!doc.storagePath) return c.json({ error: 'No file attached' }, 404)
 
-  const { data, error } = await supabase.storage
-    .from('documents')
-    .createSignedUrl(doc.storagePath, 60) // 60s validity
+  const signedUrl = await getSignedUrl(
+    r2,
+    new GetObjectCommand({ Bucket: BUCKET, Key: doc.storagePath }),
+    { expiresIn: 60 }
+  )
 
-  if (error || !data) return c.json({ error: 'Could not generate download link' }, 500)
-
-  return c.json({ url: data.signedUrl })
+  return c.json({ url: signedUrl })
 })
 
 app.delete('/documents/:id', async (c) => {
