@@ -5,7 +5,8 @@ import { eq, and } from 'drizzle-orm'
 import { r2, BUCKET } from '../lib/r2.js'
 import { GetObjectCommand } from '@aws-sdk/client-s3'
 import { gemini, matchScoreSchema } from '../lib/gemini.js'
-import pdfParse from 'pdf-parse'
+// @ts-ignore — pdf-parse subpath has no types; workaround for a Vercel-bundling bug in the main entry
+import pdfParse from 'pdf-parse/lib/pdf-parse.js'
 import type { Variables } from '../types.js'
 
 const app = new Hono<{ Variables: Variables }>()
