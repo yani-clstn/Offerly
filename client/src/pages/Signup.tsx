@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { signupSchema, type SignupInput } from "../lib/auth-schemas";
 import { authClient } from "../lib/auth-client";
 
 export default function Signup() {
+  const navigate = useNavigate();
   const [serverError, setServerError] = useState<string | null>(null);
 
   const {
@@ -27,7 +28,10 @@ export default function Signup() {
 
     if (error) {
       setServerError(error.message || "Could not create account");
+      return;
     }
+
+    navigate("/");
   };
 
   return (
