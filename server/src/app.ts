@@ -11,6 +11,7 @@ import analytics from './routes/analytics.js'
 import statusLogs from './routes/statusLogs.js'
 import interviews from './routes/interviews.js'
 import experiences from './routes/experiences.js'
+import matchScore from './routes/matchScore.js'
 
 const app = new Hono<{ Variables: Variables }>()
 
@@ -51,5 +52,6 @@ app.route('/api/analytics', analytics)
 app.route('/api/status-logs', statusLogs)
 app.route('/api/interviews', interviews)
 app.route('/api/experiences', experiences)
+app.route('/api/applications', matchScore)
 
 export default app
